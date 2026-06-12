@@ -125,8 +125,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 /* Table */
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-col.c-stat{width:26%} col.c-bs{width:16%} col.c-rr{width:14%} col.c-hi{width:18%} col.c-elev{width:22%} col.c-del{width:4%}
-table.hi-set col.c-stat{width:32%} table.hi-set col.c-bs{width:9%} table.hi-set col.c-rr{width:15%} table.hi-set col.c-hi{width:12%} table.hi-set col.c-elev{width:28%} table.hi-set col.c-del{width:4%}
+col.c-stat{width:18%} col.c-bs{width:17%} col.c-rr{width:16%} col.c-hi{width:18%} col.c-elev{width:27%} col.c-del{width:4%}
+table.hi-set col.c-stat{width:20%} table.hi-set col.c-bs{width:10%} table.hi-set col.c-rr{width:17%} table.hi-set col.c-hi{width:12%} table.hi-set col.c-elev{width:37%} table.hi-set col.c-del{width:4%}
 th { background: var(--bg-secondary); color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 7px 4px; border: 0.5px solid var(--border-light); text-align: center; overflow: hidden; }
 th.col-stat { text-align: left; padding-left: 6px; }
 td { border: 0.5px solid var(--border-light); padding: 0; overflow: hidden; position: relative; }
@@ -493,31 +493,7 @@ async function saveAll(hist=false) {
     toast('Saved ✓');
   } catch(e){ toast('Save failed'); }
 }
-function loadDefaults() {
-  const p1 = uid(), sup1 = uid(), op1 = uid();
-  config.projects = [{id:p1, name:'Test Project'}];
-  config.supervisors = [{id:sup1, name:'John Smith'}];
-  config.operators = [{id:op1, name:'Mike Lee'}];
-  config.cps = [
-    {id:uid(), projectId:p1, name:'BM-1',  elev:'100.000', category:'site-bm'},
-    {id:uid(), projectId:p1, name:'BM-2',  elev:'101.250', category:'site-bm'},
-    {id:uid(), projectId:p1, name:'CP-101', elev:'99.500',  category:'survey-control'},
-    {id:uid(), projectId:p1, name:'CP-102', elev:'102.300', category:'survey-control'},
-    {id:uid(), projectId:p1, name:'DP-A',   elev:'98.750',  category:'design'},
-    {id:uid(), projectId:p1, name:'AB-01',  elev:'100.120', category:'as-built'}
-  ];
-  const sh = {
-    id:nextSheetId++, name:'Test Sheet', date:new Date().toISOString().split('T')[0],
-    notes:'Test data', projectId:p1, supervisorId:sup1, operatorId:op1,
-    rows:[
-      {id:nextRowId++, stat:'BM-1', bs:'1.500', rr:'', hi:'', elev:'100.000', locked:false, lastEdited:'elev'},
-      {id:nextRowId++, stat:'TP-1', bs:'', rr:'', hi:'', elev:'', locked:false, lastEdited:''},
-      {id:nextRowId++, stat:'TP-2', bs:'', rr:'', hi:'', elev:'', locked:false, lastEdited:''},
-      {id:nextRowId++, stat:'TP-3', bs:'', rr:'', hi:'', elev:'', locked:false, lastEdited:''}
-    ]
-  };
-  sheets.push(sh); currentId = sh.id;
-}
+function loadDefaults() {}
 function loadAll() {
   try {
     const cr=store.get('gnb-cfg'); if(cr&&cr.value){ const c=JSON.parse(cr.value); config={projects:[],supervisors:[],operators:[],cps:[],...c}; }
@@ -882,13 +858,11 @@ function renderTable(){
   const tbody=document.getElementById('nb-body'); tbody.innerHTML='';
   const rows=s.rows;
 
-  // srcIdx = locked source row; redIdx = last row with data in that HI group
   let srcIdx=-1, redIdx=-1;
   for(let i=0;i<rows.length;i++){ if(rows[i].locked && rows[i].bs!=='') srcIdx=i; }
   if(srcIdx>=0){
-    redIdx=srcIdx;
-    for(let i=srcIdx+1;i<rows.length;i++){
-      if(rows[i].stat||rows[i].rr||rows[i].elev) redIdx=i; else break;
+    for(let i=0;i<rows.length;i++){
+      if(rows[i].bs && rows[i].bs!=='') redIdx=i;
     }
   }
 
