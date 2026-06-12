@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade Work Notebook</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a18; min-height: 100vh; }
+
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0eeea;
+  --bg-info: #e8f0fb;
+  --bg-warning: #fdf3e0;
+  --bg-success: #eaf5ee;
+  --bg-danger: #fdecea;
+  --text-primary: #1a1a18;
+  --text-secondary: #6b6b66;
+  --text-tertiary: #9a9a94;
+  --text-info: #1a5fb4;
+  --text-warning: #8a5900;
+  --text-success: #1c6f3a;
+  --text-danger: #c0392b;
+  --border-light: rgba(0,0,0,0.10);
+  --border-mid:   rgba(0,0,0,0.20);
+  --border-info:  #3a7aaa;
+  --border-warning: #c8900a;
+  --border-danger: #c0392b;
+  --red-divider: #dd2222;
+  --font-mono: 'SF Mono', 'Fira Code', monospace;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --cat-survey: #2563eb; --cat-survey-bg: #e8f0fb; --cat-survey-border: #3a7aaa;
+  --cat-bm: #d97706;     --cat-bm-bg: #fdf3e0;     --cat-bm-border: #c8900a;
+  --cat-design: #16a34a; --cat-design-bg: #eaf5ee;  --cat-design-border: #2a9a4a;
+  --cat-asbuilt: #ca8a04; --cat-asbuilt-bg: #fef9e7; --cat-asbuilt-border: #b8960a;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1e1e1c; --bg-secondary: #2a2a28; --bg-info: #1a2a40; --bg-warning: #2a2010;
+    --bg-success: #102018; --bg-danger: #2a1010;
+    --text-primary: #e0dfd8; --text-secondary: #9a9a94; --text-tertiary: #6b6b66;
+    --text-info: #88b8e8; --text-warning: #f0c060; --text-success: #60c080; --text-danger: #f08080;
+    --border-light: rgba(255,255,255,0.10); --border-mid: rgba(255,255,255,0.20);
+    --border-info: #5a9aCC; --border-warning: #e0a020; --border-danger: #e06060;
+    --red-divider: #ff4444;
+    --cat-survey: #60a0e8; --cat-survey-bg: #1a2a40; --cat-survey-border: #4080c0;
+    --cat-bm: #f0a030;     --cat-bm-bg: #2a2010;     --cat-bm-border: #c08020;
+    --cat-design: #50c070; --cat-design-bg: #102a18;  --cat-design-border: #40a060;
+    --cat-asbuilt: #e0c040; --cat-asbuilt-bg: #2a2810; --cat-asbuilt-border: #c0a030;
+  }
+  body { background: #161614; }
+}
+
+.app { max-width: 600px; margin: 0 auto; padding: 1rem; }
+.nb-title { font-size: 18px; font-weight: 500; color: var(--text-primary); margin-bottom: 0.75rem; }
+
+.nav-tabs { display: flex; border-bottom: 1px solid var(--border-light); margin-bottom: 1rem; overflow-x: auto; }
+.nav-tab { font-size: 12px; padding: 7px 12px; cursor: pointer; border: none; background: transparent; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; font-family: inherit; }
+.nav-tab.active { color: var(--text-info); border-bottom-color: var(--border-info); font-weight: 500; }
+
+.field-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+.field-row input, .field-row select { font-family: inherit; font-size: 13px; color: var(--text-primary); background: var(--bg-primary); border: 0.5px solid var(--border-mid); border-radius: var(--radius); padding: 6px 8px; outline: none; flex: 1; min-width: 80px; }
+.field-row input:focus, .field-row select:focus { border-color: var(--border-info); background: var(--bg-info); }
+.small-btn { font-size: 12px; padding: 5px 10px; cursor: pointer; border: 0.5px solid var(--border-mid); border-radius: var(--radius); background: transparent; color: var(--text-secondary); white-space: nowrap; font-family: inherit; }
+.small-btn.add { color: var(--text-info); border-color: var(--border-info); }
+.small-btn.del { color: var(--text-danger); border-color: var(--border-danger); }
+.list-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--bg-secondary); border-radius: var(--radius); margin-bottom: 4px; font-size: 13px; }
+.list-item .li-name { flex: 1; color: var(--text-primary); }
+.badge { font-size: 11px; color: var(--text-secondary); padding: 2px 6px; background: var(--bg-primary); border-radius: 20px; border: 0.5px solid var(--border-light); }
+.empty-hint { font-size: 12px; color: var(--text-tertiary); padding: 8px 0; }
+.section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin: 0 0 8px; }
+.setup-section { margin-bottom: 1.5rem; }
+
+/* Category dot */
+.cat-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.cat-dot.survey-control { background: var(--cat-survey); }
+.cat-dot.site-bm { background: var(--cat-bm); }
+.cat-dot.design { background: var(--cat-design); }
+.cat-dot.as-built { background: var(--cat-asbuilt); }
+.cat-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; }
+.cat-badge.survey-control { color: var(--cat-survey); background: var(--cat-survey-bg); border: 0.5px solid var(--cat-survey-border); }
+.cat-badge.site-bm { color: var(--cat-bm); background: var(--cat-bm-bg); border: 0.5px solid var(--cat-bm-border); }
+.cat-badge.design { color: var(--cat-design); background: var(--cat-design-bg); border: 0.5px solid var(--cat-design-border); }
+.cat-badge.as-built { color: var(--cat-asbuilt); background: var(--cat-asbuilt-bg); border: 0.5px solid var(--cat-asbuilt-border); }
+
+/* CP category filter tabs */
+.cat-tabs { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+.cat-tab { font-size: 11px; padding: 4px 8px; cursor: pointer; border: 0.5px solid var(--border-mid); border-radius: 16px; background: transparent; color: var(--text-secondary); font-family: inherit; display: flex; align-items: center; gap: 4px; }
+.cat-tab.active { font-weight: 500; }
+.cat-tab.active.survey-control { background: var(--cat-survey-bg); color: var(--cat-survey); border-color: var(--cat-survey-border); }
+.cat-tab.active.site-bm { background: var(--cat-bm-bg); color: var(--cat-bm); border-color: var(--cat-bm-border); }
+.cat-tab.active.design { background: var(--cat-design-bg); color: var(--cat-design); border-color: var(--cat-design-border); }
+.cat-tab.active.as-built { background: var(--cat-asbuilt-bg); color: var(--cat-asbuilt); border-color: var(--cat-asbuilt-border); }
+.cat-tab.active.all { background: var(--bg-info); color: var(--text-info); border-color: var(--border-info); }
+
+/* History */
+.hist-group { margin-bottom: 1.25rem; }
+.hist-date-header { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 0 4px; border-bottom: 0.5px solid var(--border-light); margin-bottom: 6px; }
+.hist-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: var(--radius); margin-bottom: 4px; border: 0.5px solid transparent; }
+.hist-item:hover { border-color: var(--border-info); }
+.hist-item .hi-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.hist-item .hi-meta { font-size: 11px; color: var(--text-secondary); }
+.hist-item .hi-proj { font-size: 11px; color: var(--text-secondary); background: var(--bg-primary); padding: 2px 7px; border-radius: 8px; border: 0.5px solid var(--border-light); }
+.hist-open { font-size: 11px; color: var(--text-info); cursor: pointer; white-space: nowrap; padding: 3px 8px; border: 0.5px solid var(--border-info); border-radius: var(--radius); background: transparent; font-family: inherit; }
+.hist-empty { font-size: 13px; color: var(--text-tertiary); padding: 24px 0; text-align: center; }
+
+/* Toolbar */
+.toolbar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 0.75rem; }
+.sheet-tab { font-size: 12px; padding: 4px 10px; cursor: pointer; border: 0.5px solid var(--border-mid); border-radius: var(--radius); background: transparent; color: var(--text-secondary); font-family: inherit; }
+.sheet-tab.active { background: var(--bg-info); color: var(--text-info); border-color: var(--border-info); font-weight: 500; }
+.toolbar-sep { width: 1px; height: 20px; background: var(--border-light); margin: 0 2px; }
+.btn { font-size: 12px; padding: 4px 10px; cursor: pointer; border: 0.5px solid var(--border-mid); border-radius: var(--radius); background: transparent; color: var(--text-secondary); white-space: nowrap; font-family: inherit; }
+.btn:hover { background: var(--bg-secondary); }
+.btn.primary { background: var(--bg-info); color: var(--text-info); border-color: var(--border-info); }
+.btn.danger { color: var(--text-danger); border-color: var(--border-danger); }
+
+/* Meta grid */
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--border-light); }
+.meta-field { display: flex; flex-direction: column; gap: 3px; }
+.meta-field label { font-size: 10px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.meta-field select, .meta-field input { font-family: inherit; font-size: 13px; color: var(--text-primary); background: var(--bg-primary); border: 0.5px solid var(--border-mid); border-radius: var(--radius); padding: 5px 8px; outline: none; width: 100%; }
+.meta-field select:focus, .meta-field input:focus { border-color: var(--border-info); background: var(--bg-info); }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+col.c-stat{width:26%} col.c-bs{width:16%} col.c-rr{width:14%} col.c-hi{width:18%} col.c-elev{width:22%} col.c-del{width:4%}
+table.hi-set col.c-stat{width:32%} table.hi-set col.c-bs{width:9%} table.hi-set col.c-rr{width:15%} table.hi-set col.c-hi{width:12%} table.hi-set col.c-elev{width:28%} table.hi-set col.c-del{width:4%}
+th { background: var(--bg-secondary); color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 7px 4px; border: 0.5px solid var(--border-light); text-align: center; overflow: hidden; }
+th.col-stat { text-align: left; padding-left: 6px; }
+td { border: 0.5px solid var(--border-light); padding: 0; overflow: hidden; position: relative; }
+td input { width: 100%; border: none; background: transparent; padding: 6px 4px; font-size: 13px; font-family: var(--font-mono); color: var(--text-primary); text-align: center; outline: none; min-width: 0; }
+td input:focus { background: var(--bg-info) !important; }
+td input.stat-input { text-align: left; padding-left: 6px; font-family: inherit; }
+td.hi-pending { background: var(--bg-warning); cursor: pointer; }
+td.hi-pending input { color: var(--text-warning); font-weight: 500; pointer-events: none; }
+td.hi-locked-cell { background: var(--bg-secondary); cursor: pointer; }
+td.hi-locked-cell input { font-weight: 500; pointer-events: none; }
+td.hi-propagated { background: var(--bg-secondary); }
+td.hi-propagated input { font-weight: 500; color: var(--text-secondary); }
+td.auto-green input { color: var(--text-success); }
+.del-btn { background: transparent; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 13px; padding: 3px 2px; line-height: 1; width: 100%; font-family: inherit; }
+.del-btn:hover { color: var(--text-danger); }
+.add-row-btn { margin-top: 8px; font-size: 12px; padding: 5px 12px; cursor: pointer; border: 0.5px solid var(--border-mid); border-radius: var(--radius); background: transparent; color: var(--text-secondary); font-family: inherit; }
+.add-row-btn:hover { background: var(--bg-secondary); }
+
+/* Confirm */
+.confirm-popup { display: none; margin: 8px 0; background: var(--bg-primary); border: 0.5px solid var(--border-info); border-radius: var(--radius-lg); padding: 12px 14px; }
+.confirm-popup.show { display: block; }
+.confirm-popup p { font-size: 13px; color: var(--text-primary); margin: 0 0 10px; }
+.confirm-popup p strong { font-weight: 500; color: var(--text-info); }
+.confirm-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.confirm-btns button { font-size: 13px; padding: 6px 16px; border-radius: var(--radius); cursor: pointer; border: 0.5px solid var(--border-mid); background: transparent; color: var(--text-secondary); font-family: inherit; }
+.confirm-btns .yes { background: var(--bg-info); color: var(--text-info); border-color: var(--border-info); font-weight: 500; }
+.confirm-btns .unlock { background: var(--bg-warning); color: var(--text-warning); border-color: var(--border-warning); font-weight: 500; }
+
+/* Legend */
+.legend { margin-top: 12px; font-size: 11px; color: var(--text-secondary); display: flex; gap: 12px; flex-wrap: wrap; }
+.legend span { display: flex; align-items: center; gap: 4px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.dot-pending { background: var(--bg-warning); border: 1.5px solid var(--border-warning); }
+.dot-locked  { background: var(--bg-secondary); border: 1.5px solid var(--border-mid); }
+.dot-auto    { background: var(--bg-success); border: 1.5px solid #2a9a4a; }
+.cp-hint { font-size: 10px; color: var(--text-tertiary); text-align: center; padding: 6px 0 2px; }
+
+/* Utility Structures */
+.type-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+.type-btn { flex: 1; padding: 8px 6px; font-size: 12px; font-weight: 500; border: 0.5px solid var(--border-mid); border-radius: var(--radius); background: transparent; color: var(--text-secondary); cursor: pointer; font-family: inherit; }
+.type-btn.active { background: var(--bg-info); color: var(--text-info); border-color: var(--border-info); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.form-field { display: flex; flex-direction: column; gap: 3px; }
+.form-field label { font-size: 10px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.form-field input { font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); background: var(--bg-primary); border: 0.5px solid var(--border-mid); border-radius: var(--radius); padding: 6px 8px; outline: none; width: 100%; }
+.form-field input:focus { border-color: var(--border-info); background: var(--bg-info); }
+.form-field.inv-field input { border-color: var(--border-warning); }
+.form-field .unit { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
+.inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.inv-cell { position: relative; display: flex; flex-direction: column; gap: 3px; }
+.inv-cell label { font-size: 10px; color: var(--text-warning); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.inv-cell input { font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); background: var(--bg-primary); border: 0.5px solid var(--border-warning); border-radius: var(--radius); padding: 6px 8px 6px 26px; outline: none; width: 100%; box-sizing: border-box; }
+.inv-cell input:focus { border-color: var(--tint); background: var(--bg-info); }
+.inv-dir { position: absolute; bottom: 7px; left: 8px; font-size: 11px; font-weight: 700; pointer-events: none; }
+.inv-dir.n { color: #e04040; }
+.inv-dir.s { color: #3090e0; }
+.inv-dir.e { color: #30a050; }
+.inv-dir.w { color: #d09020; }
+.canvas-wrap { background: var(--bg-secondary); border: 0.5px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 8px; }
+canvas#uc { display: block; width: 100%; }
+.info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+.info-card { background: var(--bg-secondary); border-radius: var(--radius); padding: 8px 10px; }
+.info-card .lbl { font-size: 10px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; }
+.info-card .val { font-family: var(--font-mono); font-size: 13px; font-weight: 500; margin-top: 2px; color: var(--text-primary); }
+.inv-bar { padding: 8px 10px; background: var(--bg-warning); border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.inv-bar .lbl { font-size: 10px; color: var(--text-warning); font-weight: 600; text-transform: uppercase; }
+.inv-bar .val { font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--text-warning); }
+.us-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg-secondary); border-radius: var(--radius); margin-bottom: 4px; font-size: 12px; cursor: pointer; border: 0.5px solid transparent; }
+.us-item:hover { border-color: var(--border-info); }
+.us-item .us-name { flex: 1; font-weight: 500; color: var(--text-primary); }
+.us-item .us-type { font-size: 11px; color: var(--text-secondary); padding: 2px 6px; background: var(--bg-primary); border-radius: 8px; border: 0.5px solid var(--border-light); }
+.us-item .us-dims { font-size: 11px; color: var(--text-secondary); font-family: var(--font-mono); }
+
+/* Overlays */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: flex-end; justify-content: center; }
+.overlay.show { display: flex; }
+.sheet { background: var(--bg-primary); border-radius: 16px 16px 0 0; padding: 16px 0 40px; width: 100%; max-width: 600px; max-height: 75vh; display: flex; flex-direction: column; }
+.sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 12px; border-bottom: 0.5px solid var(--border-light); gap: 8px; }
+.sheet-back { background: none; border: none; font-size: 24px; color: var(--tint); padding: 0 4px; cursor: pointer; line-height: 1; }
+.sheet-header h4 { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+.sheet-close { background: transparent; border: none; font-size: 20px; cursor: pointer; color: var(--text-tertiary); font-family: inherit; }
+.sheet-body { overflow-y: auto; flex: 1; }
+.cp-item { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; border-bottom: 0.5px solid var(--border-light); }
+.cp-item:hover { background: var(--bg-info); }
+.cp-item.used { opacity: 0.35; pointer-events: none; }
+.cp-item .cp-name { font-size: 14px; font-weight: 500; color: var(--text-primary); flex: 1; }
+.cp-item .cp-elev { font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary); background: var(--bg-secondary); padding: 3px 8px; border-radius: 6px; }
+.sheet-empty { padding: 24px 16px; font-size: 13px; color: var(--text-tertiary); text-align: center; }
+
+/* Action sheet items */
+.action-item { display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; border-bottom: 0.5px solid var(--border-light); font-size: 15px; color: var(--text-primary); }
+.action-item:hover { background: var(--bg-info); }
+.action-item .ai-icon { font-size: 18px; }
+.action-item .ai-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Slope Table */
+.slope-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px 16px; }
+.slope-inputs label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 4px; }
+.slope-inputs input { width: 100%; box-sizing: border-box; font-size: 14px; padding: 8px; border: 0.5px solid var(--border-mid); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-mono); }
+.slope-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.slope-tbl th { font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); padding: 8px 12px; text-align: left; border-bottom: 0.5px solid var(--border-light); position: sticky; top: 0; background: var(--bg-primary); }
+.slope-tbl td { padding: 10px 12px; border-bottom: 0.5px solid var(--border-light); color: var(--text-primary); font-family: var(--font-mono); }
+.slope-tbl tr.selected { background: var(--bg-info); }
+.slope-tbl tr:active { background: var(--bg-info); }
+.slope-btns { display: flex; gap: 8px; padding: 12px 16px; flex-wrap: wrap; }
+.slope-btns button { flex: 1; min-width: 80px; font-size: 13px; padding: 10px 8px; border-radius: var(--radius); border: 0.5px solid var(--border-mid); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-family: inherit; }
+.slope-btns button.primary { background: var(--bg-info); color: var(--text-info); border-color: var(--border-info); }
+.slope-btns button.danger { color: var(--text-danger); border-color: var(--border-danger); }
+
+/* Save CP form */
+.save-cp-form { padding: 16px; }
+.save-cp-form .scp-preview { background: var(--bg-secondary); border-radius: var(--radius); padding: 12px; margin-bottom: 16px; display: flex; gap: 16px; }
+.save-cp-form .scp-preview .scp-label { font-size: 10px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; }
+.save-cp-form .scp-preview .scp-val { font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--text-primary); margin-top: 2px; }
+.save-cp-form .scp-cat-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 8px; }
+.cat-pick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.cat-pick-btn { display: flex; align-items: center; gap: 8px; padding: 12px; border-radius: var(--radius); cursor: pointer; border: 2px solid var(--border-light); background: transparent; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--text-primary); transition: border-color 0.15s; }
+.cat-pick-btn:hover { border-color: var(--border-mid); }
+.cat-pick-btn.selected.survey-control { border-color: var(--cat-survey); background: var(--cat-survey-bg); }
+.cat-pick-btn.selected.site-bm { border-color: var(--cat-bm); background: var(--cat-bm-bg); }
+.cat-pick-btn.selected.design { border-color: var(--cat-design); background: var(--cat-design-bg); }
+.cat-pick-btn.selected.as-built { border-color: var(--cat-asbuilt); background: var(--cat-asbuilt-bg); }
+.save-cp-confirm { width: 100%; padding: 12px; font-size: 14px; font-weight: 500; border-radius: var(--radius); cursor: pointer; border: none; background: var(--bg-info); color: var(--text-info); font-family: inherit; }
+.save-cp-confirm:disabled { opacity: 0.4; cursor: default; }
+
+/* Share */
+.share-body { padding: 16px; }
+.share-body textarea { width: 100%; font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); background: var(--bg-secondary); border: 0.5px solid var(--border-mid); border-radius: var(--radius); padding: 10px; resize: none; outline: none; line-height: 1.6; }
+.share-btns { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.share-btn { flex: 1; min-width: 80px; font-size: 13px; font-weight: 500; padding: 10px 8px; border-radius: var(--radius); cursor: pointer; border: none; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: inherit; }
+.share-btn.copy  { background: var(--bg-secondary); color: var(--text-primary); border: 0.5px solid var(--border-mid); }
+.share-btn.sms   { background: #28a745; color: #fff; }
+.share-btn.email { background: var(--bg-info); color: var(--text-info); border: 0.5px solid var(--border-info); }
+.share-btn.close-btn { background: transparent; color: var(--text-secondary); border: 0.5px solid var(--border-mid); flex: none; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a18; color: #f0eeea; font-size: 12px; padding: 8px 18px; border-radius: var(--radius); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 999; white-space: nowrap; }
+.toast.show { opacity: 1; }
+
+@media print {
+  .nav-tabs,.toolbar,.add-row-btn,.del-btn,.legend,.toast,.confirm-popup,.overlay,.cp-hint,.type-row { display: none !important; }
+  #page-setup, #page-history, #page-utility, #page-slope { display: none !important; }
+  body { background: #fff; } .app { padding: 0; max-width: 100%; }
+  table { border-collapse: collapse; width: 100%; table-layout: auto; }
+  th { font-size: 9pt; padding: 4pt 5pt; border: 0.5pt solid #aaa; background: #f0f0f0 !important; color: #333 !important; }
+  td { border: 0.5pt solid #aaa; }
+  td input { font-size: 10pt; padding: 3pt 4pt; background: transparent !important; color: #000 !important; border: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <p class="nb-title">Grade Work Notebook</p>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('notebook')">📋 Notebook</button>
+    <button class="nav-tab" onclick="showPage('slope')">📐 Slope</button>
+    <button class="nav-tab" onclick="showPage('utility')">🏗 Structures</button>
+    <button class="nav-tab" onclick="showPage('history')">🕒 History</button>
+    <button class="nav-tab" onclick="showPage('setup')">⚙️ Setup</button>
+  </div>
+
+  <!-- SETUP -->
+  <div id="page-setup" style="display:none">
+    <div class="setup-section">
+      <p class="section-title">Projects</p>
+      <div class="field-row"><input type="text" id="new-project-name" placeholder="Project name…"><button class="small-btn add" onclick="addProject()">+ Add</button></div>
+      <div id="project-list"></div>
+    </div>
+    <div class="setup-section">
+      <p class="section-title">Supervisors</p>
+      <div class="field-row"><input type="text" id="new-supervisor-name" placeholder="Supervisor name…"><button class="small-btn add" onclick="addSupervisor()">+ Add</button></div>
+      <div id="supervisor-list"></div>
+    </div>
+    <div class="setup-section">
+      <p class="section-title">Operators</p>
+      <div class="field-row"><input type="text" id="new-operator-name" placeholder="Operator name…"><button class="small-btn add" onclick="addOperator()">+ Add</button></div>
+      <div id="operator-list"></div>
+    </div>
+    <div class="setup-section">
+      <p class="section-title">CP Points</p>
+      <div class="field-row">
+        <select id="cp-project-select"><option value="">— Project —</option></select>
+        <select id="new-cp-cat" style="flex:1.2"></select>
+        <input type="text" id="new-cp-name" placeholder="CP name" style="flex:1">
+        <input type="text" id="new-cp-elev" placeholder="ELEV" style="flex:0.7" inputmode="decimal">
+        <button class="small-btn add" onclick="addCP()">+ Add</button>
+      </div>
+      <div class="cat-tabs" id="cp-filter-tabs"></div>
+      <div id="cp-list"></div>
+    </div>
+  </div>
+
+  <!-- UTILITY STRUCTURES -->
+  <div id="page-utility" style="display:none">
+    <div class="type-row">
+      <button class="type-btn active" id="btn-vault" onclick="setUsType('vault')">📦 Vault</button>
+      <button class="type-btn" id="btn-manhole" onclick="setUsType('manhole')">⭕ Manhole</button>
+    </div>
+    <div id="us-form-vault">
+      <div class="form-grid">
+        <div class="form-field"><label>Length (L)</label><input type="number" id="v-l" value="2.4" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
+        <div class="form-field"><label>Width (W)</label><input type="number" id="v-w" value="1.8" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
+        <div class="form-field"><label>Height (H)</label><input type="number" id="v-h" value="1.5" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
+        <div class="form-field inv-field"><label>INV (from base)</label><input type="number" id="v-inv" value="0.3" step="0.001" oninput="usDraw()"><span class="unit">m from bottom</span></div>
+      </div>
+    </div>
+    <div id="us-form-manhole" style="display:none">
+      <div class="form-grid">
+        <div class="form-field"><label>Inner Diameter</label><input type="number" id="m-id" value="1.2" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
+        <div class="form-field"><label>Outer Diameter</label><input type="number" id="m-od" value="1.5" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
+        <div class="form-field"><label>Height (H)</label><input type="number" id="m-h" value="2.0" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
+      </div>
+      <div class="inv-grid">
+        <div class="inv-cell"><label>INV North</label><input type="number" id="m-inv-n" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir n">N</span></div>
+        <div class="inv-cell"><label>INV South</label><input type="number" id="m-inv-s" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir s">S</span></div>
+        <div class="inv-cell"><label>INV East</label><input type="number" id="m-inv-e" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir e">E</span></div>
+        <div class="inv-cell"><label>INV West</label><input type="number" id="m-inv-w" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir w">W</span></div>
+      </div>
+    </div>
+    <div class="canvas-wrap"><canvas id="uc" height="240"></canvas></div>
+    <div class="info-row" id="us-info-cards"></div>
+    <div id="us-inv-bar"></div>
+    <div class="setup-section">
+      <p class="section-title">Saved Structures</p>
+      <div class="field-row"><input type="text" id="us-save-name" placeholder="Structure name (e.g. MH-01)"><button class="small-btn add" onclick="saveStructure()">+ Save</button></div>
+      <div id="us-saved-list"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="page-history" style="display:none"><div id="hist-content"></div></div>
+
+  <!-- SLOPE TABLE -->
+  <div id="page-slope" style="display:none">
+    <div class="slope-inputs">
+      <div><label>Start Elev</label><input id="slope-elev" type="number" step="any" oninput="slopeCalc()"></div>
+      <div><label>Slope %</label><input id="slope-pct" type="number" step="any" oninput="slopeCalc()"></div>
+      <div><label>Step Dist</label><input id="slope-dist" type="number" step="any" min="0" oninput="slopeCalc()"></div>
+    </div>
+    <table class="slope-tbl">
+      <thead><tr><th>#</th><th>Distance</th><th>Elev</th></tr></thead>
+      <tbody id="slope-tbody"></tbody>
+    </table>
+    <div class="slope-btns">
+      <button onclick="slopeAddStep()">+ Add Step</button>
+      <button class="danger" onclick="slopeReset()">Reset</button>
+      <button onclick="slopeCopy()">📋 Copy</button>
+      <button class="primary" onclick="slopeInsert()">↓ Insert Elev</button>
+    </div>
+  </div>
+
+  <!-- NOTEBOOK -->
+  <div id="page-notebook">
+    <div class="toolbar" id="toolbar"></div>
+    <div class="confirm-popup" id="confirm-popup">
+      <p id="confirm-msg"></p>
+      <div class="confirm-btns" id="confirm-btns"></div>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-field"><label>Project</label><select id="field-project" onchange="metaChanged()"></select></div>
+      <div class="meta-field"><label>Supervisor</label><select id="field-supervisor" onchange="metaChanged()"></select></div>
+      <div class="meta-field"><label>Operator</label><select id="field-operator" onchange="metaChanged()"></select></div>
+      <div class="meta-field"><label>Date</label><input type="date" id="field-date" oninput="metaChanged()"></div>
+      <div class="meta-field" style="grid-column:1/-1"><label>Notes</label><input type="text" id="field-remark" placeholder="Weather, location…" oninput="metaChanged()"></div>
+    </div>
+    <table id="main-table">
+      <colgroup><col class="c-stat"><col class="c-bs"><col class="c-rr"><col class="c-hi"><col class="c-elev"><col class="c-del"></colgroup>
+      <thead><tr><th class="col-stat">STAT</th><th>BS</th><th>RR</th><th>HI</th><th>ELEV</th><th></th></tr></thead>
+      <tbody id="nb-body"></tbody>
+    </table>
+    <button class="add-row-btn" onclick="addRow()">+ Add Row</button>
+    <div class="legend">
+      <span><span class="dot dot-pending"></span>HI pending — tap to lock</span>
+      <span><span class="dot dot-locked"></span>HI locked (tap to unlock)</span>
+      <span><span class="dot dot-auto"></span>auto calculated</span>
+    </div>
+    <p class="cp-hint">Long-press STAT to pick CP / save as CP</p>
+  </div>
+</div>
+
+<!-- CP Picker -->
+<div class="overlay" id="cp-overlay" onclick="if(event.target===this)closeCPPicker()">
+  <div class="sheet">
+    <div class="sheet-header"><button id="cp-picker-back" class="sheet-back" onclick="showCPCategories()" style="display:none">‹</button><h4 id="cp-picker-title">Select Category</h4><button class="sheet-close" onclick="closeCPPicker()">✕</button></div>
+    <div class="sheet-body" id="cp-list-el"></div>
+  </div>
+</div>
+
+<!-- STAT Action Sheet -->
+<div class="overlay" id="stat-action-overlay" onclick="if(event.target===this)closeStatAction()">
+  <div class="sheet">
+    <div class="sheet-header"><h4>Station Actions</h4><button class="sheet-close" onclick="closeStatAction()">✕</button></div>
+    <div class="sheet-body" id="stat-action-body"></div>
+  </div>
+</div>
+
+<!-- Save as CP -->
+<div class="overlay" id="save-cp-overlay" onclick="if(event.target===this)closeSaveCP()">
+  <div class="sheet">
+    <div class="sheet-header"><h4>Save as CP Point</h4><button class="sheet-close" onclick="closeSaveCP()">✕</button></div>
+    <div class="sheet-body" id="save-cp-body"></div>
+  </div>
+</div>
+
+<!-- Share -->
+<div class="overlay" id="share-overlay" onclick="if(event.target===this)closeShare()">
+  <div class="sheet">
+    <div class="sheet-header"><h4>Share Sheet Data</h4><button class="sheet-close" onclick="closeShare()">✕</button></div>
+    <div class="share-body">
+      <textarea id="share-text" rows="14" readonly></textarea>
+      <div class="share-btns">
+        <button class="share-btn copy" onclick="copyShare()">📋 Copy</button>
+        <a class="share-btn sms" id="sms-btn" href="#">💬 SMS</a>
+        <a class="share-btn email" id="email-btn" href="#">✉️ Email</a>
+        <button class="share-btn close-btn" onclick="closeShare()">✕</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Constants ──────────────────────────────────────────────────────────────
+const CP_CATS = [
+  { id: 'survey-control', name: 'Survey Control', icon: '🔵' },
+  { id: 'site-bm',        name: 'Site BM',        icon: '🟠' },
+  { id: 'design',         name: 'Design Points',  icon: '🟢' },
+  { id: 'as-built',       name: 'As-Built Points', icon: '🟡' }
+];
+const catMap = Object.fromEntries(CP_CATS.map(c=>[c.id, c]));
+
+// ─── State ──────────────────────────────────────────────────────────────────
+let config = { projects:[], supervisors:[], operators:[], cps:[] };
+let sheets = [], currentId = null, nextSheetId = 1, nextRowId = 1;
+let historyLog = [], savedStructures = [];
+let pendingHIRowId = null, pendingUnlockRowId = null;
+let usType = 'vault';
+let cpFilterCat = 'all';
+let saveCPRowId = null, saveCPCat = '';
+
+const N   = s => { const n = parseFloat(s); return isNaN(n) ? null : n; };
+const F   = n => parseFloat(n.toFixed(3)).toString();
+const esc = s => (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const uid = () => '_' + Math.random().toString(36).slice(2,9);
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const fmtDate = d => { if(!d)return'—'; try{const[y,m,day]=d.split('-');return MONTHS[+m-1]+' '+parseInt(day)+', '+y;}catch(e){return d;} };
+const fmtDT   = ts => { const d=new Date(ts); return MONTHS[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear()+' — '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); };
+const dKey    = ts => { const d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0'); };
+const dLabel  = ts => { const d=new Date(ts); return MONTHS[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear(); };
+
+// ─── LocalStorage ───────────────────────────────────────────────────────────
+const store = {
+  get: k => { try{ const v=localStorage.getItem(k); return v?{value:v}:null; }catch(e){return null;} },
+  set: (k,v) => { try{ localStorage.setItem(k,v); }catch(e){} }
+};
+async function saveAll(hist=false) {
+  try {
+    if(hist){ const s=cSheet(); if(s){ historyLog.push({savedAt:Date.now(),sheet:JSON.parse(JSON.stringify(s))}); if(historyLog.length>200)historyLog=historyLog.slice(-200); } }
+    store.set('gnb-cfg', JSON.stringify(config));
+    store.set('gnb-sh',  JSON.stringify({sheets,currentId,nextSheetId,nextRowId}));
+    store.set('gnb-hi',  JSON.stringify(historyLog));
+    store.set('gnb-us',  JSON.stringify(savedStructures));
+    toast('Saved ✓');
+  } catch(e){ toast('Save failed'); }
+}
+function loadDefaults() {
+  const p1 = uid(), sup1 = uid(), op1 = uid();
+  config.projects = [{id:p1, name:'Test Project'}];
+  config.supervisors = [{id:sup1, name:'John Smith'}];
+  config.operators = [{id:op1, name:'Mike Lee'}];
+  config.cps = [
+    {id:uid(), projectId:p1, name:'BM-1',  elev:'100.000', category:'site-bm'},
+    {id:uid(), projectId:p1, name:'BM-2',  elev:'101.250', category:'site-bm'},
+    {id:uid(), projectId:p1, name:'CP-101', elev:'99.500',  category:'survey-control'},
+    {id:uid(), projectId:p1, name:'CP-102', elev:'102.300', category:'survey-control'},
+    {id:uid(), projectId:p1, name:'DP-A',   elev:'98.750',  category:'design'},
+    {id:uid(), projectId:p1, name:'AB-01',  elev:'100.120', category:'as-built'}
+  ];
+  const sh = {
+    id:nextSheetId++, name:'Test Sheet', date:new Date().toISOString().split('T')[0],
+    notes:'Test data', projectId:p1, supervisorId:sup1, operatorId:op1,
+    rows:[
+      {id:nextRowId++, stat:'BM-1', bs:'1.500', rr:'', hi:'', elev:'100.000', locked:false, lastEdited:'elev'},
+      {id:nextRowId++, stat:'TP-1', bs:'', rr:'', hi:'', elev:'', locked:false, lastEdited:''},
+      {id:nextRowId++, stat:'TP-2', bs:'', rr:'', hi:'', elev:'', locked:false, lastEdited:''},
+      {id:nextRowId++, stat:'TP-3', bs:'', rr:'', hi:'', elev:'', locked:false, lastEdited:''}
+    ]
+  };
+  sheets.push(sh); currentId = sh.id;
+}
+function loadAll() {
+  try {
+    const cr=store.get('gnb-cfg'); if(cr&&cr.value){ const c=JSON.parse(cr.value); config={projects:[],supervisors:[],operators:[],cps:[],...c}; }
+    const sr=store.get('gnb-sh');  if(sr&&sr.value){ const d=JSON.parse(sr.value); sheets=d.sheets||[]; currentId=d.currentId||null; nextSheetId=d.nextSheetId||1; nextRowId=d.nextRowId||1; }
+    const hr=store.get('gnb-hi');  if(hr&&hr.value) historyLog=JSON.parse(hr.value);
+    const ur=store.get('gnb-us');  if(ur&&ur.value) savedStructures=JSON.parse(ur.value);
+  } catch(e){}
+  config.cps.forEach(cp => { if(!cp.category) cp.category = 'survey-control'; });
+  if(!config.projects.length && !sheets.length) loadDefaults();
+  if(!sheets.length) newSheet(false);
+  initCatSelect();
+  renderSetup(); renderAll(); renderHistory(); renderSavedStructures();
+}
+
+// ─── Pages ──────────────────────────────────────────────────────────────────
+const PAGES = ['notebook','slope','utility','history','setup'];
+function showPage(p) {
+  PAGES.forEach(pg => document.getElementById('page-'+pg).style.display = pg===p ? '' : 'none');
+  document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', PAGES[i]===p));
+  if(p==='setup') renderSetup();
+  if(p==='history') renderHistory();
+  if(p==='utility') setTimeout(usDraw, 50);
+}
+
+// ─── History ────────────────────────────────────────────────────────────────
+function renderHistory() {
+  const el = document.getElementById('hist-content');
+  if(!historyLog.length){ el.innerHTML='<p class="hist-empty">No saved history yet.<br>Click Save to record a snapshot.</p>'; return; }
+  const sorted = [...historyLog].sort((a,b)=>b.savedAt-a.savedAt);
+  const groups = {};
+  sorted.forEach(h => { const k=dKey(h.savedAt); if(!groups[k])groups[k]=[]; groups[k].push(h); });
+  let html = '';
+  Object.keys(groups).forEach(k => {
+    html += `<div class="hist-group"><div class="hist-date-header">${dLabel(groups[k][0].savedAt)}</div>`;
+    groups[k].forEach((h,i) => {
+      const s=h.sheet; const proj=config.projects.find(p=>p.id===s.projectId); const rc=(s.rows||[]).filter(r=>r.stat||r.bs||r.rr).length;
+      html += `<div class="hist-item"><div style="flex:1"><div class="hi-name">${esc(s.name||'Sheet')}</div><div class="hi-meta">${fmtDT(h.savedAt)}</div></div>${proj?`<span class="hi-proj">${esc(proj.name)}</span>`:''}<span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">${rc}r</span><button class="hist-open" onclick="openFromHistory('${k}',${i})">Open →</button></div>`;
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+function openFromHistory(dk, idx) {
+  const sorted=[...historyLog].sort((a,b)=>b.savedAt-a.savedAt);
+  const groups={}; sorted.forEach(h=>{const k=dKey(h.savedAt);if(!groups[k])groups[k]=[];groups[k].push(h);});
+  const h=groups[dk][idx]; if(!h) return;
+  const snap=JSON.parse(JSON.stringify(h.sheet)); snap.id=nextSheetId++; snap.name+=' (restored)'; snap.rows=(snap.rows||[]).map(r=>({...r,id:nextRowId++}));
+  sheets.push(snap); currentId=snap.id; showPage('notebook'); renderAll(); toast('Restored');
+}
+
+// ─── Setup ──────────────────────────────────────────────────────────────────
+function initCatSelect() {
+  const sel = document.getElementById('new-cp-cat');
+  sel.innerHTML = CP_CATS.map(c => `<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+}
+function addProject()   { const i=document.getElementById('new-project-name');  const n=i.value.trim(); if(!n)return; config.projects.push({id:uid(),name:n});   i.value=''; saveAll(); renderSetup(); renderMeta(); }
+function delProject(id) { if(!confirm('Delete project and CP points?'))return; config.projects=config.projects.filter(p=>p.id!==id); config.cps=config.cps.filter(c=>c.projectId!==id); saveAll(); renderSetup(); renderMeta(); }
+function addSupervisor(){ const i=document.getElementById('new-supervisor-name'); const n=i.value.trim(); if(!n)return; config.supervisors.push({id:uid(),name:n}); i.value=''; saveAll(); renderSetup(); renderMeta(); }
+function delSupervisor(id){ config.supervisors=config.supervisors.filter(s=>s.id!==id); saveAll(); renderSetup(); renderMeta(); }
+function addOperator()  { const i=document.getElementById('new-operator-name');  const n=i.value.trim(); if(!n)return; config.operators.push({id:uid(),name:n});   i.value=''; saveAll(); renderSetup(); renderMeta(); }
+function delOperator(id){ config.operators=config.operators.filter(o=>o.id!==id); saveAll(); renderSetup(); renderMeta(); }
+function addCP() {
+  const pid=document.getElementById('cp-project-select').value, cat=document.getElementById('new-cp-cat').value,
+    name=document.getElementById('new-cp-name').value.trim(), elev=document.getElementById('new-cp-elev').value.trim();
+  if(!pid){toast('Select a project first');return;} if(!name){toast('Enter CP name');return;} if(N(elev)===null){toast('Enter valid ELEV');return;}
+  config.cps.push({id:uid(),projectId:pid,name,elev,category:cat||'survey-control'});
+  document.getElementById('new-cp-name').value=''; document.getElementById('new-cp-elev').value=''; saveAll(); renderSetup();
+}
+function delCP(id){ config.cps=config.cps.filter(c=>c.id!==id); saveAll(); renderSetup(); }
+function setCPFilter(cat) { cpFilterCat = cat; renderSetup(); }
+
+function renderSetup() {
+  document.getElementById('project-list').innerHTML = config.projects.length ? config.projects.map(p=>`<div class="list-item"><span class="li-name">${esc(p.name)}</span><span class="badge">${config.cps.filter(c=>c.projectId===p.id).length} CP</span><button class="small-btn del" onclick="delProject('${p.id}')">✕</button></div>`).join('') : '<p class="empty-hint">No projects yet.</p>';
+  document.getElementById('supervisor-list').innerHTML = config.supervisors.length ? config.supervisors.map(s=>`<div class="list-item"><span class="li-name">${esc(s.name)}</span><button class="small-btn del" onclick="delSupervisor('${s.id}')">✕</button></div>`).join('') : '<p class="empty-hint">No supervisors yet.</p>';
+  document.getElementById('operator-list').innerHTML  = config.operators.length  ? config.operators.map(o=>`<div class="list-item"><span class="li-name">${esc(o.name)}</span><button class="small-btn del" onclick="delOperator('${o.id}')">✕</button></div>`).join('')  : '<p class="empty-hint">No operators yet.</p>';
+  const cpSel=document.getElementById('cp-project-select'); const cpv=cpSel.value;
+  cpSel.innerHTML='<option value="">— Project —</option>'+config.projects.map(p=>`<option value="${p.id}"${p.id===cpv?' selected':''}>${esc(p.name)}</option>`).join('');
+
+  // Category filter tabs
+  const ftEl = document.getElementById('cp-filter-tabs');
+  let ftHtml = `<button class="cat-tab all${cpFilterCat==='all'?' active':''}" onclick="setCPFilter('all')">All</button>`;
+  CP_CATS.forEach(c => {
+    const cnt = config.cps.filter(cp => cp.category === c.id).length;
+    ftHtml += `<button class="cat-tab ${c.id}${cpFilterCat===c.id?' active':''}" onclick="setCPFilter('${c.id}')"><span class="cat-dot ${c.id}"></span>${c.name} (${cnt})</button>`;
+  });
+  ftEl.innerHTML = ftHtml;
+
+  const pid=cpSel.value;
+  let vis=pid?config.cps.filter(c=>c.projectId===pid):config.cps;
+  if(cpFilterCat!=='all') vis=vis.filter(c=>c.category===cpFilterCat);
+
+  document.getElementById('cp-list').innerHTML = vis.length ? vis.map(c=>{
+    const proj=config.projects.find(p=>p.id===c.projectId);
+    const cat=catMap[c.category||'survey-control']||CP_CATS[0];
+    return `<div class="list-item"><span class="cat-dot ${c.category||'survey-control'}"></span><span class="li-name">${esc(c.name)}</span>${!pid?`<span class="badge">${esc(proj?proj.name:'?')}</span>`:''}<span class="cat-badge ${c.category||'survey-control'}">${cat.name}</span><span class="badge">${esc(c.elev)}</span><button class="small-btn del" onclick="delCP('${c.id}')">✕</button></div>`;
+  }).join('') : '<p class="empty-hint">No CP points.</p>';
+}
+document.getElementById('cp-project-select').addEventListener('change', renderSetup);
+function autoOne(sel) { const opts=[...sel.options].filter(o=>o.value); if(opts.length===1&&!sel.value) sel.value=opts[0].value; }
+
+// ─── Utility Structures ─────────────────────────────────────────────────────
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const uc=document.getElementById('uc'), uctx=uc.getContext('2d');
+const UC={face:isDark?'#2a3a4a':'#cde3f5',top:isDark?'#3a5060':'#a8d0ee',side:isDark?'#1e2e3a':'#7fb8df',stroke:isDark?'#5a8aaa':'#3a7aaa',label:isDark?'#c0d8e8':'#1a4a7a',inv:isDark?'#f5c060':'#c07010',invL:isDark?'#f5a020':'#e07800',wall:isDark?'#4a3a2a':'#d4c0a0',wallD:isDark?'#3a2a1a':'#b09060',wallS:isDark?'#2a1a0a':'#907040',bg:isDark?'#1e1e1c':'#f0eeea',dim:isDark?'#6a9aaa':'#2a6a9a'};
+function setUsType(t){usType=t;document.getElementById('us-form-vault').style.display=t==='vault'?'':'none';document.getElementById('us-form-manhole').style.display=t==='manhole'?'':'none';document.getElementById('btn-vault').classList.toggle('active',t==='vault');document.getElementById('btn-manhole').classList.toggle('active',t==='manhole');usDraw();}
+function un(id){return parseFloat(document.getElementById(id).value)||0;}
+function usDraw(){const W=uc.offsetWidth||340;uc.width=W;uc.height=240;uctx.clearRect(0,0,W,240);usType==='vault'?drawVault(W):drawManhole(W);usInfo();}
+function iso(x,y,z,ox,oy,s){return{px:ox+(x-z)*s*0.866,py:oy-y*s+(x+z)*s*0.5};}
+function iF(pts,fill,stroke){uctx.beginPath();uctx.moveTo(pts[0].px,pts[0].py);pts.slice(1).forEach(p=>uctx.lineTo(p.px,p.py));uctx.closePath();uctx.fillStyle=fill;uctx.fill();uctx.strokeStyle=stroke;uctx.lineWidth=1;uctx.stroke();}
+function drawVault(W){const L=Math.max(un('v-l'),0.1),Wd=Math.max(un('v-w'),0.1),H=Math.max(un('v-h'),0.1),inv=un('v-inv');const s=Math.min(55,190/Math.max(L,Wd,H));const ox=W/2,oy=200-H*s*0.4;const p=(x,y,z)=>iso(x,y,z,ox,oy,s);iF([p(0,0,0),p(L,0,0),p(L,H,0),p(0,H,0)],UC.face,UC.stroke);iF([p(L,0,0),p(L,0,Wd),p(L,H,Wd),p(L,H,0)],UC.side,UC.stroke);iF([p(0,H,0),p(L,H,0),p(L,H,Wd),p(0,H,Wd)],UC.top,UC.stroke);if(inv>0&&inv<=H){const fl=p(0,inv,0),fr=p(L,inv,0),rr=p(L,inv,Wd);uctx.beginPath();uctx.moveTo(fl.px,fl.py);uctx.lineTo(fr.px,fr.py);uctx.lineTo(rr.px,rr.py);uctx.strokeStyle=UC.invL;uctx.lineWidth=2;uctx.setLineDash([5,3]);uctx.stroke();uctx.setLineDash([]);const base=p(0,0,0);const ax=base.px-24;uctx.beginPath();uctx.moveTo(ax,base.py);uctx.lineTo(ax,fl.py);uctx.strokeStyle=UC.invL;uctx.lineWidth=1;uctx.stroke();[[ax,base.py,1],[ax,fl.py,-1]].forEach(([x,y,d])=>{uctx.beginPath();uctx.moveTo(x-4,y+d*6);uctx.lineTo(x,y);uctx.lineTo(x+4,y+d*6);uctx.strokeStyle=UC.invL;uctx.lineWidth=1.5;uctx.stroke();});uctx.fillStyle=UC.inv;uctx.font='500 11px sans-serif';uctx.textAlign='right';uctx.fillText('INV '+un('v-inv').toFixed(3)+'m',ax-4,(base.py+fl.py)/2+4);}uctx.fillStyle=UC.label;uctx.font='11px monospace';const bl=p(0,0,0),br=p(L,0,0),rbr=p(L,0,Wd),tl=p(0,H,0);uctx.textAlign='center';uctx.fillText('L='+L.toFixed(2)+'m',(bl.px+br.px)/2,(bl.py+br.py)/2+14);uctx.fillText('W='+Wd.toFixed(2)+'m',(br.px+rbr.px)/2+12,(br.py+rbr.py)/2+10);uctx.textAlign='right';uctx.fillText('H='+H.toFixed(2)+'m',bl.px-30,(bl.py+tl.py)/2+4);}
+function drawManhole(W){const id=Math.max(un('m-id'),0.1),od=Math.max(un('m-od'),id+0.01),H=Math.max(un('m-h'),0.1);const iv=mhInvs();const s=Math.min(70,160/Math.max(od,H));const cx=W/2,bY=220;const ro=od*s/2,ryo=ro*0.32,ri=id*s/2,ryi=ri*0.32,hP=H*s;uctx.fillStyle=UC.wall;uctx.strokeStyle=UC.stroke;uctx.lineWidth=1;uctx.fillRect(cx-ro,bY-hP,ro*2,hP);uctx.strokeRect(cx-ro,bY-hP,ro*2,hP);uctx.fillStyle=UC.bg;uctx.fillRect(cx-ri,bY-hP+2,ri*2,hP-2);uctx.fillStyle=UC.wallD;uctx.fillRect(cx-ro,bY-hP,ro-ri,hP);uctx.fillRect(cx+ri,bY-hP,ro-ri,hP);uctx.strokeRect(cx-ro,bY-hP,ro*2,hP);[[cx,bY,ro,ryo,UC.wallS],[cx,bY,ri,ryi,UC.bg],[cx,bY-hP,ro,ryo,UC.top],[cx,bY-hP,ri,ryi,UC.bg]].forEach(([ex,ey,rx,ry,fill])=>{uctx.beginPath();uctx.ellipse(ex,ey,rx,ry,0,0,Math.PI*2);uctx.fillStyle=fill;uctx.fill();uctx.strokeStyle=UC.stroke;uctx.stroke();});const invColors={N:'#e04040',S:'#3090e0',E:'#30a050',W:'#d09020'};const invDirs=[['N',iv.N,-1,0],['S',iv.S,1,0],['W',iv.W,0,-1],['E',iv.E,0,1]];let invIdx=0;invDirs.forEach(([dir,val,dy,dx])=>{if(!(val>0&&val<=H))return;const iP=bY-val*s;const col=invColors[dir];const lineX1=dx<0?cx-ri+2:dx>0?cx+ri-2:cx-ri*0.5;const lineX2=dx<0?cx-ri+2:dx>0?cx+ri-2:cx+ri*0.5;const lineLen=ri*0.6;if(dx===0){uctx.beginPath();uctx.moveTo(cx-lineLen,iP);uctx.lineTo(cx+lineLen,iP);}else if(dx<0){uctx.beginPath();uctx.moveTo(cx-ri+2,iP);uctx.lineTo(cx,iP);}else{uctx.beginPath();uctx.moveTo(cx,iP);uctx.lineTo(cx+ri-2,iP);}uctx.strokeStyle=col;uctx.lineWidth=2;uctx.setLineDash([4,3]);uctx.stroke();uctx.setLineDash([]);const side=invIdx%2===0?-1:1;const ax=side<0?cx-ro-14-invIdx*0:cx+ro+14+invIdx*0;const offset=invIdx*12;uctx.font='bold 9px sans-serif';uctx.fillStyle=col;uctx.textAlign=side<0?'right':'left';uctx.fillText(dir+' '+val.toFixed(3),side<0?cx-ro-4:cx+ro+4,iP+3+offset*0.3);invIdx++;});uctx.fillStyle=UC.label;uctx.font='11px monospace';const ax2=cx+ro+14;uctx.beginPath();uctx.moveTo(ax2,bY-hP);uctx.lineTo(ax2,bY);uctx.strokeStyle=UC.dim;uctx.lineWidth=1;uctx.stroke();uctx.textAlign='left';uctx.fillText('H='+H.toFixed(2)+'m',ax2+5,bY-hP/2+4);uctx.textAlign='center';uctx.fillText('OD='+od.toFixed(2)+'m',cx,bY-hP-ryo-8);uctx.fillStyle=isDark?'#9abccc':'#2a6a9a';uctx.fillText('ID='+id.toFixed(2)+'m',cx,bY-hP+ryi+14);}
+function mhInvs(){return{N:un('m-inv-n'),S:un('m-inv-s'),E:un('m-inv-e'),W:un('m-inv-w')};}
+function usInfo(){const c=document.getElementById('us-info-cards'),ib=document.getElementById('us-inv-bar');if(usType==='vault'){const L=un('v-l'),W=un('v-w'),H=un('v-h'),inv=un('v-inv');ib.innerHTML=`<div class="inv-bar"><span class="lbl">INV from base</span><span class="val">${inv.toFixed(3)} m</span></div>`;c.innerHTML=`<div class="info-card"><div class="lbl">Volume</div><div class="val">${(L*W*H).toFixed(2)} m³</div></div><div class="info-card"><div class="lbl">Footprint</div><div class="val">${(L*W).toFixed(2)} m²</div></div>`;}else{const id=un('m-id'),od=un('m-od'),H=un('m-h'),iv=mhInvs();const dirs=[['N',iv.N,'n'],['S',iv.S,'s'],['E',iv.E,'e'],['W',iv.W,'w']].filter(d=>d[1]>0);ib.innerHTML=dirs.length?dirs.map(d=>`<div class="inv-bar"><span class="lbl">INV <span class="inv-dir ${d[2]}" style="position:static">${d[0]}</span></span><span class="val">${d[1].toFixed(3)} m</span></div>`).join(''):`<div class="inv-bar"><span class="lbl">INV</span><span class="val">—</span></div>`;c.innerHTML=`<div class="info-card"><div class="lbl">Wall thickness</div><div class="val">${((od-id)/2).toFixed(2)} m</div></div><div class="info-card"><div class="lbl">Wall volume</div><div class="val">${(Math.PI*(od/2*od/2-id/2*id/2)*H).toFixed(2)} m³</div></div>`;}}
+function saveStructure(){const nm=document.getElementById('us-save-name').value.trim();if(!nm){toast('Enter a name');return;}let dims,tl;if(usType==='vault'){dims={L:un('v-l'),W:un('v-w'),H:un('v-h'),INV:un('v-inv')};tl='Vault';}else{const iv=mhInvs();dims={id:un('m-id'),od:un('m-od'),H:un('m-h'),invN:iv.N,invS:iv.S,invE:iv.E,invW:iv.W};tl='Manhole';}savedStructures.push({id:uid(),name:nm,type:usType,typeLabel:tl,dims});document.getElementById('us-save-name').value='';saveAll();renderSavedStructures();}
+function loadStructure(id){const s=savedStructures.find(s=>s.id===id);if(!s)return;setUsType(s.type);if(s.type==='vault'){document.getElementById('v-l').value=s.dims.L;document.getElementById('v-w').value=s.dims.W;document.getElementById('v-h').value=s.dims.H;document.getElementById('v-inv').value=s.dims.INV;}else{document.getElementById('m-id').value=s.dims.id;document.getElementById('m-od').value=s.dims.od;document.getElementById('m-h').value=s.dims.H;document.getElementById('m-inv-n').value=s.dims.invN||'';document.getElementById('m-inv-s').value=s.dims.invS||'';document.getElementById('m-inv-e').value=s.dims.invE||'';document.getElementById('m-inv-w').value=s.dims.invW||'';}usDraw();}
+function delStructure(id){savedStructures=savedStructures.filter(s=>s.id!==id);saveAll();renderSavedStructures();}
+function renderSavedStructures(){const el=document.getElementById('us-saved-list');if(!el)return;if(!savedStructures.length){el.innerHTML='<p class="empty-hint">No saved structures yet.</p>';return;}el.innerHTML=savedStructures.map(s=>{let d;if(s.type==='vault'){d=`${s.dims.L.toFixed(2)}×${s.dims.W.toFixed(2)}×${s.dims.H.toFixed(2)}m`;}else{const invs=[['N',s.dims.invN],['S',s.dims.invS],['E',s.dims.invE],['W',s.dims.invW]].filter(x=>x[1]>0).map(x=>x[0]+':'+x[1].toFixed(3)).join(' ');d=`OD${s.dims.od.toFixed(2)}×H${s.dims.H.toFixed(2)}m`+(invs?' '+invs:'');}return`<div class="us-item" onclick="loadStructure('${s.id}')"><span class="us-name">${esc(s.name)}</span><span class="us-type">${esc(s.typeLabel)}</span><span class="us-dims">${d}</span><button class="small-btn del" onclick="event.stopPropagation();delStructure('${s.id}')">✕</button></div>`;}).join('');}
+new ResizeObserver(()=>{if(document.getElementById('page-utility').style.display!=='none')usDraw();}).observe(uc);
+
+// ─── Notebook ───────────────────────────────────────────────────────────────
+const cSheet = () => sheets.find(s => s.id === currentId);
+
+function newSheet(save=true) {
+  const id=nextSheetId++;
+  const sh={id,name:'Sheet '+id,date:new Date().toISOString().split('T')[0],notes:'',projectId:'',supervisorId:'',operatorId:'',rows:[mkRow('BM1'),mkRow('TP1'),mkRow('TP2')]};
+  if(config.projects.length===1)    sh.projectId=config.projects[0].id;
+  if(config.supervisors.length===1) sh.supervisorId=config.supervisors[0].id;
+  if(config.operators.length===1)   sh.operatorId=config.operators[0].id;
+  sheets.push(sh); currentId=id;
+  if(save){recompute();saveAll(true);}
+}
+function mkRow(stat=''){return{id:nextRowId++,stat,bs:'',rr:'',hi:'',elev:'',locked:false,lastEdited:''};}
+function switchSheet(id){currentId=id;pendingHIRowId=null;pendingUnlockRowId=null;hideConfirm();renderAll();}
+function deleteSheet(){if(sheets.length===1){toast('Cannot delete the only sheet');return;}if(!confirm('Delete?'))return;sheets=sheets.filter(s=>s.id!==currentId);currentId=sheets[sheets.length-1].id;saveAll();renderAll();}
+function metaChanged(){const s=cSheet();if(!s)return;s.date=document.getElementById('field-date').value;s.notes=document.getElementById('field-remark').value;s.projectId=document.getElementById('field-project').value;s.supervisorId=document.getElementById('field-supervisor').value;s.operatorId=document.getElementById('field-operator').value;}
+function addRow(){const s=cSheet();if(!s)return;s.rows.push(mkRow());recompute();}
+function removeRow(id){const s=cSheet();if(!s)return;s.rows=s.rows.filter(r=>r.id!==id);if(pendingHIRowId===id){pendingHIRowId=null;hideConfirm();}recompute();}
+
+function onInput(id, field, value) {
+  const s=cSheet(); if(!s)return;
+  const row=s.rows.find(r=>r.id===id); if(!row)return;
+  row[field]=value;
+  if(field==='hi')   { row.locked=true; pendingHIRowId=null; hideConfirm(); }
+  if(field==='rr')   row.lastEdited='rr';
+  if(field==='elev') row.lastEdited='elev';
+  recompute();
+}
+
+// ─── CP Picker ──────────────────────────────────────────────────────────────
+let cpPickerRowId = null;
+function openCPPicker(rowId) {
+  cpPickerRowId = rowId;
+  const s=cSheet(); if(!s)return;
+  const pid=s.projectId; const cps=pid?config.cps.filter(c=>c.projectId===pid):config.cps;
+  if(!cps.length){
+    const list=document.getElementById('cp-list-el');
+    list.innerHTML=`<div class="sheet-empty">${pid?'No CP points for this project.':'Select a project first.'}</div>`;
+    document.getElementById('cp-picker-title').textContent='Select CP Point';
+    document.getElementById('cp-picker-back').style.display='none';
+    document.getElementById('cp-overlay').classList.add('show');
+    return;
+  }
+  showCPCategories(cps);
+  document.getElementById('cp-overlay').classList.add('show');
+}
+function showCPCategories(cps) {
+  if(!cps) { const s=cSheet(); if(!s)return; const pid=s.projectId; cps=pid?config.cps.filter(c=>c.projectId===pid):config.cps; }
+  document.getElementById('cp-picker-title').textContent='Select Category';
+  document.getElementById('cp-picker-back').style.display='none';
+  const list=document.getElementById('cp-list-el');
+  const grouped = {};
+  CP_CATS.forEach(c => grouped[c.id] = []);
+  cps.forEach(cp => { const cat=cp.category||'survey-control'; if(!grouped[cat])grouped[cat]=[]; grouped[cat].push(cp); });
+  let html='';
+  CP_CATS.forEach(c => {
+    const cnt = (grouped[c.id]||[]).length;
+    if(!cnt) return;
+    html+=`<div class="action-item" onclick="showCPList('${c.id}')"><span class="cat-dot ${c.id}" style="width:14px;height:14px"></span><div style="flex:1"><div>${c.icon} ${c.name}</div><div class="ai-sub">${cnt} point${cnt>1?'s':''}</div></div></div>`;
+  });
+  list.innerHTML=html;
+}
+function showCPList(catId) {
+  const s=cSheet(); if(!s)return;
+  const pid=s.projectId;
+  const cps=(pid?config.cps.filter(c=>c.projectId===pid):config.cps).filter(c=>(c.category||'survey-control')===catId);
+  const used=new Set(s.rows.filter(r=>r.id!==cpPickerRowId).map(r=>r.stat).filter(Boolean));
+  const cat=catMap[catId]||CP_CATS[0];
+  document.getElementById('cp-picker-title').innerHTML=`<span class="cat-dot ${catId}"></span> ${cat.name}`;
+  document.getElementById('cp-picker-back').style.display='';
+  const list=document.getElementById('cp-list-el');
+  list.innerHTML=cps.map(cp=>
+    `<div class="cp-item${used.has(cp.name)?' used':''}" onclick="selectCP(cpPickerRowId,'${cp.id}')"><span class="cp-name">${esc(cp.name)}</span><span class="cp-elev">${esc(cp.elev)}</span></div>`
+  ).join('')||'<div class="sheet-empty">No points in this category.</div>';
+}
+function selectCP(rowId, cpId) {
+  const s=cSheet(); if(!s)return;
+  const row=s.rows.find(r=>r.id===rowId); const cp=config.cps.find(c=>c.id===cpId);
+  if(row&&cp){row.stat=cp.name;row.elev=cp.elev;row.lastEdited='elev';}
+  closeCPPicker(); recompute();
+  setTimeout(()=>{const el=document.getElementById('bs-'+rowId);if(el)el.focus();},100);
+}
+function closeCPPicker(){document.getElementById('cp-overlay').classList.remove('show');}
+
+// ─── STAT Action Sheet (long-press below red line) ──────────────────────────
+let statActionRowId = null;
+function openStatAction(rowId) {
+  statActionRowId = rowId;
+  const s=cSheet(); if(!s)return;
+  const row=s.rows.find(r=>r.id===rowId); if(!row)return;
+  const hasData = row.stat && N(row.elev)!==null;
+  let html = `<div class="action-item" onclick="closeStatAction();openCPPicker(${rowId})"><span class="ai-icon">📍</span><div><div>Select CP Point</div><div class="ai-sub">Pick an existing control point</div></div></div>`;
+  if(hasData) {
+    html += `<div class="action-item" onclick="closeStatAction();openSaveCP(${rowId})"><span class="ai-icon">💾</span><div><div>Save as CP Point</div><div class="ai-sub">Save "${esc(row.stat)}" (ELEV: ${esc(row.elev)}) to CP list</div></div></div>`;
+  }
+  document.getElementById('stat-action-body').innerHTML = html;
+  document.getElementById('stat-action-overlay').classList.add('show');
+}
+function closeStatAction(){document.getElementById('stat-action-overlay').classList.remove('show');}
+
+// ─── Save as CP ─────────────────────────────────────────────────────────────
+function openSaveCP(rowId) {
+  saveCPRowId = rowId; saveCPCat = '';
+  const s=cSheet(); if(!s)return;
+  const row=s.rows.find(r=>r.id===rowId); if(!row)return;
+  const body = document.getElementById('save-cp-body');
+  body.innerHTML = `<div class="save-cp-form">
+    <div class="scp-preview"><div><div class="scp-label">Station</div><div class="scp-val">${esc(row.stat)}</div></div><div><div class="scp-label">Elevation</div><div class="scp-val">${esc(row.elev)}</div></div></div>
+    <div class="scp-cat-title">Select Category</div>
+    <div class="cat-pick-grid">${CP_CATS.map(c=>`<button class="cat-pick-btn ${c.id}" onclick="pickSaveCat('${c.id}')"><span class="cat-dot ${c.id}"></span>${c.icon} ${c.name}</button>`).join('')}</div>
+    <button class="save-cp-confirm" id="save-cp-btn" disabled onclick="doSaveCP()">Select a category</button>
+  </div>`;
+  document.getElementById('save-cp-overlay').classList.add('show');
+}
+function pickSaveCat(cat) {
+  saveCPCat = cat;
+  document.querySelectorAll('.cat-pick-btn').forEach(b => b.classList.toggle('selected', b.classList.contains(cat)));
+  const btn = document.getElementById('save-cp-btn');
+  btn.disabled = false;
+  btn.textContent = 'Save as ' + (catMap[cat]||{}).name;
+}
+function doSaveCP() {
+  if(!saveCPCat || !saveCPRowId) return;
+  const s=cSheet(); if(!s)return;
+  const row=s.rows.find(r=>r.id===saveCPRowId); if(!row)return;
+  const pid = s.projectId;
+  if(!pid){toast('Select a project first');closeSaveCP();return;}
+  config.cps.push({id:uid(), projectId:pid, name:row.stat, elev:row.elev, category:saveCPCat});
+  closeSaveCP(); saveAll(); toast('CP "'+row.stat+'" saved ✓');
+}
+function closeSaveCP(){document.getElementById('save-cp-overlay').classList.remove('show');saveCPRowId=null;saveCPCat='';}
+
+// ─── HI Lock / Unlock ──────────────────────────────────────────────────────
+function tapHI(id){
+  const s=cSheet();if(!s)return;const row=s.rows.find(r=>r.id===id);if(!row||N(row.hi)===null)return;
+  if(row.locked){
+    pendingUnlockRowId=id; pendingHIRowId=null;
+    showConfirmMsg('Unlock HI = <strong>'+esc(row.hi)+'</strong>? Data will be preserved.',
+      [{cls:'unlock',text:'Unlock',fn:()=>doUnlock()},{cls:'',text:'Cancel',fn:()=>hideConfirm()}]);
+  } else {
+    pendingHIRowId=id; pendingUnlockRowId=null;
+    showConfirmMsg('Lock HI = <strong>'+esc(row.hi)+'</strong> as fixed value?',
+      [{cls:'yes',text:'Yes, lock it',fn:()=>confirmHI(true)},{cls:'',text:'Keep calculating',fn:()=>confirmHI(false)}]);
+  }
+}
+function showConfirmMsg(html, buttons) {
+  document.getElementById('confirm-msg').innerHTML = html;
+  document.getElementById('confirm-btns').innerHTML = buttons.map((b,i)=>`<button class="${b.cls}" onclick="window._cfBtns[${i}]()">${b.text}</button>`).join('');
+  window._cfBtns = buttons.map(b=>b.fn);
+  document.getElementById('confirm-popup').classList.add('show');
+}
+function hideConfirm(){document.getElementById('confirm-popup').classList.remove('show');pendingHIRowId=null;pendingUnlockRowId=null;}
+function confirmHI(yes){
+  const rowId = pendingHIRowId;
+  hideConfirm();
+  if(!rowId)return;
+  const s=cSheet(); if(!s)return;
+  const row=s.rows.find(r=>r.id===rowId);
+  if(row&&yes) row.locked=true;
+  recompute();
+}
+function doUnlock(){
+  const rowId = pendingUnlockRowId;
+  hideConfirm();
+  if(!rowId)return;
+  const s=cSheet(); if(!s)return;
+  const row=s.rows.find(r=>r.id===rowId);
+  if(row){ row.locked=false; }
+  recompute(); toast('HI unlocked');
+}
+
+// ─── RECOMPUTE ──────────────────────────────────────────────────────────────
+function recompute() {
+  const s=cSheet(); if(!s)return;
+  const rows=s.rows;
+  let propagatedHI=null;
+
+  for(let i=0; i<rows.length; i++){
+    const r=rows[i];
+    const bs=N(r.bs), rr=N(r.rr), elev=N(r.elev);
+
+    if(r.locked){
+      if(bs!==null && elev!==null) r.hi = F(bs+elev);
+      propagatedHI = N(r.hi);
+    } else if(bs!==null && elev!==null){
+      r.hi = F(bs+elev);
+    } else if(propagatedHI!==null && (bs===null || r.bs==='')){
+      r.hi = F(propagatedHI);
+      if(r.lastEdited === 'rr' && rr !== null){
+        r.elev = F(propagatedHI - rr);
+      } else if(r.lastEdited === 'elev' && elev !== null){
+        r.rr = F(propagatedHI - elev);
+      } else if(rr !== null && (!r.elev || r.elev==='')){
+        r.elev = F(propagatedHI - rr);
+        r.lastEdited = 'rr';
+      } else if(elev !== null && (!r.rr || r.rr==='')){
+        r.rr = F(propagatedHI - elev);
+        r.lastEdited = 'elev';
+      }
+    } else {
+      r.hi = '';
+    }
+  }
+
+  document.getElementById('main-table').className = rows.some(r=>r.locked) ? 'hi-set' : '';
+  renderTable();
+}
+
+// ─── Render ─────────────────────────────────────────────────────────────────
+function renderAll(){ renderToolbar(); renderMeta(); recompute(); }
+
+function renderToolbar(){
+  const tb=document.getElementById('toolbar'); let html='';
+  sheets.forEach(s=>{ html+=`<button class="sheet-tab${s.id===currentId?' active':''}" onclick="switchSheet(${s.id})">${esc(s.name)}</button>`; });
+  html+=`<span class="toolbar-sep"></span>`;
+  html+=`<button class="btn primary" onclick="newSheet()">+ New</button>`;
+  html+=`<button class="btn" onclick="renameSheet()">Rename</button>`;
+  html+=`<button class="btn" onclick="saveAll(true)">Save</button>`;
+  html+=`<button class="btn" onclick="openShare()">📤 Share</button>`;
+  html+=`<button class="btn" onclick="window.print()">Print</button>`;
+  html+=`<button class="btn danger" onclick="deleteSheet()">Delete</button>`;
+  tb.innerHTML=html;
+}
+
+function renderMeta(){
+  const s=cSheet(); if(!s)return;
+  const ps=document.getElementById('field-project');
+  const ss=document.getElementById('field-supervisor');
+  const os=document.getElementById('field-operator');
+  ps.innerHTML='<option value="">— Select —</option>'+config.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  ss.innerHTML='<option value="">— Select —</option>'+config.supervisors.map(sv=>`<option value="${sv.id}">${esc(sv.name)}</option>`).join('');
+  os.innerHTML='<option value="">— Select —</option>'+config.operators.map(o=>`<option value="${o.id}">${esc(o.name)}</option>`).join('');
+  ps.value=s.projectId||''; ss.value=s.supervisorId||''; os.value=s.operatorId||'';
+  if(!ps.value) autoOne(ps); if(!ss.value) autoOne(ss); if(!os.value) autoOne(os);
+  s.projectId=ps.value; s.supervisorId=ss.value; s.operatorId=os.value;
+  document.getElementById('field-date').value=s.date||'';
+  document.getElementById('field-remark').value=s.notes||'';
+}
+
+function renderTable(){
+  const s=cSheet(); if(!s)return;
+  const focused=document.activeElement?document.activeElement.id:null;
+  const tbody=document.getElementById('nb-body'); tbody.innerHTML='';
+  const rows=s.rows;
+
+  // srcIdx = locked source row; redIdx = last row with data in that HI group
+  let srcIdx=-1, redIdx=-1;
+  for(let i=0;i<rows.length;i++){ if(rows[i].locked && rows[i].bs!=='') srcIdx=i; }
+  if(srcIdx>=0){
+    redIdx=srcIdx;
+    for(let i=srcIdx+1;i<rows.length;i++){
+      if(rows[i].stat||rows[i].rr||rows[i].elev) redIdx=i; else break;
+    }
+  }
+
+  rows.forEach((row,idx)=>{
+    const tr=document.createElement('tr');
+    const hi=N(row.hi);
+    const isPending=!row.locked && hi!==null && N(row.bs)!==null;
+    const isBelow = idx > srcIdx && srcIdx >= 0;
+    const hiClass=row.locked?'hi-locked-cell':(isPending?'hi-pending':(isBelow?'hi-propagated':''));
+
+    const rrAuto   = isBelow && row.lastEdited==='elev';
+    const elevAuto = isBelow && row.lastEdited==='rr';
+
+    // STAT cell with long-press
+    const stTd=document.createElement('td'); stTd.style.position='relative';
+    const stIn=document.createElement('input');
+    stIn.id='stat-'+row.id; stIn.className='stat-input'; stIn.type='text';
+    stIn.value=row.stat||''; stIn.placeholder='Station / CP'; stIn.autocomplete='off';
+    stIn.oninput=()=>onInput(row.id,'stat',stIn.value);
+    let pt=null;
+    const sp=()=>{
+      pt=setTimeout(()=>{
+        pt=null; stIn.style.background='';
+        if(isBelow) openStatAction(row.id);
+        else openCPPicker(row.id);
+      },500);
+      stIn.style.background='var(--bg-warning)';
+    };
+    const cp=()=>{if(pt){clearTimeout(pt);pt=null;}stIn.style.background='';};
+    stIn.addEventListener('touchstart',sp,{passive:true}); stIn.addEventListener('touchend',cp); stIn.addEventListener('touchmove',cp);
+    stIn.addEventListener('mousedown',sp); stIn.addEventListener('mouseup',cp); stIn.addEventListener('mouseleave',cp);
+    stIn.addEventListener('contextmenu',e=>e.preventDefault());
+    stTd.appendChild(stIn); tr.appendChild(stTd);
+
+    const t=document.createElement('template');
+    t.innerHTML=`
+      <td><input id="bs-${row.id}" type="text" inputmode="decimal" value="${esc(row.bs)}" placeholder="BS" oninput="onInput(${row.id},'bs',this.value)"></td>
+      <td class="${rrAuto?'auto-green':''}"><input id="rr-${row.id}" type="text" inputmode="decimal" value="${esc(row.rr)}" placeholder="RR" oninput="onInput(${row.id},'rr',this.value)"></td>
+      <td class="${hiClass}" ${isPending||row.locked?`onclick="tapHI(${row.id})"`:''}><input id="hi-${row.id}" type="text" inputmode="decimal" value="${esc(row.hi)}" placeholder="${isPending?'tap to lock':'—'}" oninput="onInput(${row.id},'hi',this.value)" ${isPending||isBelow||row.locked?'readonly':''} ${isPending||row.locked?'style="cursor:pointer;pointer-events:none"':''}></td>
+      <td class="${elevAuto?'auto-green':''}"><input id="elev-${row.id}" type="text" inputmode="decimal" value="${esc(row.elev)}" placeholder="auto" oninput="onInput(${row.id},'elev',this.value)"></td>
+      <td><button class="del-btn" onclick="removeRow(${row.id})">✕</button></td>`;
+    [...t.content.children].forEach(c=>tr.appendChild(c));
+    tbody.appendChild(tr);
+
+    if(idx===redIdx){
+      [...tr.children].forEach(td=>{ td.style.borderBottom='3px solid var(--red-divider)'; });
+    }
+  });
+
+  if(focused){const el=document.getElementById(focused);if(el){el.focus();el.setSelectionRange&&el.setSelectionRange(el.value.length,el.value.length);}}
+}
+
+function renameSheet(){const s=cSheet();if(!s)return;const n=prompt('Sheet name:',s.name);if(n&&n.trim()){s.name=n.trim();saveAll();renderToolbar();}}
+
+// ─── Share ──────────────────────────────────────────────────────────────────
+function buildShareText(){
+  const s=cSheet();if(!s)return'';
+  const proj=config.projects.find(p=>p.id===s.projectId);
+  const sup=config.supervisors.find(sv=>sv.id===s.supervisorId);
+  const op=config.operators.find(o=>o.id===s.operatorId);
+  const L=['=== Grade Work Notebook ===','Sheet      : '+s.name];
+  if(proj)L.push('Project    : '+proj.name);
+  if(sup)L.push('Supervisor : '+sup.name);
+  if(op)L.push('Operator   : '+op.name);
+  L.push('Date       : '+fmtDate(s.date));
+  if(s.notes)L.push('Notes      : '+s.notes);
+  L.push('','STAT         BS       RR       HI     ELEV','────────────────────────────────────────────');
+  s.rows.forEach(r=>{const c=(str,w)=>(str||'—').padStart(w);L.push((r.stat||'—').padEnd(12)+c(r.bs,7)+'  '+c(r.rr,7)+'  '+c(r.hi,7)+'  '+c(r.elev,7));});
+  L.push('────────────────────────────────────────────');
+  return L.join('\n');
+}
+function openShare(){const txt=buildShareText();document.getElementById('share-text').value=txt;const enc=encodeURIComponent(txt);const s=cSheet()||{name:''};const proj=config.projects.find(p=>p.id===s.projectId);const subj=encodeURIComponent('Grade Work – '+(proj?proj.name:s.name));document.getElementById('sms-btn').href='sms:?body='+enc;document.getElementById('email-btn').href='mailto:?subject='+subj+'&body='+enc;document.getElementById('share-overlay').classList.add('show');}
+function closeShare(){document.getElementById('share-overlay').classList.remove('show');}
+function copyShare(){const ta=document.getElementById('share-text');if(navigator.clipboard)navigator.clipboard.writeText(ta.value).then(()=>toast('Copied ✓'));else{ta.select();document.execCommand('copy');toast('Copied ✓');}}
+
+// ─── Slope Table ────────────────────────────────────────────────────────────
+let slopeSteps = 1, slopeSelIdx = null;
+function slopeCalc(){
+  const e0=parseFloat(document.getElementById('slope-elev').value);
+  const pct=parseFloat(document.getElementById('slope-pct').value);
+  const sd=parseFloat(document.getElementById('slope-dist').value);
+  const tb=document.getElementById('slope-tbody');
+  if(isNaN(e0)||isNaN(pct)||isNaN(sd)||sd<=0){ tb.innerHTML='<tr><td colspan="3" style="text-align:center;color:var(--text-tertiary);padding:20px">Enter values above</td></tr>'; return; }
+  let html='';
+  for(let i=0;i<slopeSteps;i++){
+    const dist=F(i*sd);
+    const elev=F(e0 + (i*sd)*(pct/100));
+    const sel=i===slopeSelIdx;
+    html+=`<tr class="${sel?'selected':''}" onclick="slopeSel(${i})"><td>${i+1}</td><td>${dist}</td><td>${elev}</td></tr>`;
+  }
+  tb.innerHTML=html;
+}
+function slopeSel(i){ slopeSelIdx=slopeSelIdx===i?null:i; slopeCalc(); }
+function slopeAddStep(){ slopeSteps++; slopeCalc(); }
+function slopeReset(){ slopeSteps=1; slopeSelIdx=null; document.getElementById('slope-elev').value=''; document.getElementById('slope-pct').value=''; document.getElementById('slope-dist').value=''; slopeCalc(); }
+function slopeCopy(){
+  const e0=parseFloat(document.getElementById('slope-elev').value);
+  const pct=parseFloat(document.getElementById('slope-pct').value);
+  const sd=parseFloat(document.getElementById('slope-dist').value);
+  if(isNaN(e0)||isNaN(pct)||isNaN(sd)||sd<=0){ toast('No data to copy'); return; }
+  let txt='Slope Table: Start='+F(e0)+' Slope='+pct+'% Step='+F(sd)+'\n#\tDist\tElev\n';
+  for(let i=0;i<slopeSteps;i++) txt+=(i+1)+'\t'+F(i*sd)+'\t'+F(e0+(i*sd)*(pct/100))+'\n';
+  if(navigator.clipboard) navigator.clipboard.writeText(txt).then(()=>toast('Copied ✓'));
+  else toast('Copy failed');
+}
+function slopeInsert(){
+  if(slopeSelIdx===null){ toast('Tap a row to select first'); return; }
+  const e0=parseFloat(document.getElementById('slope-elev').value);
+  const pct=parseFloat(document.getElementById('slope-pct').value);
+  const sd=parseFloat(document.getElementById('slope-dist').value);
+  if(isNaN(e0)||isNaN(pct)||isNaN(sd)||sd<=0) return;
+  const elev=F(e0+(slopeSelIdx*sd)*(pct/100));
+  const s=cSheet(); if(!s) return;
+  const row=s.rows.find(r=>!r.locked && !r.stat && r.bs==='' && r.rr==='' && r.elev==='');
+  if(!row){ toast('No empty row available'); return; }
+  row.elev=elev; row.lastEdited='elev';
+  recompute(); renderTable(); saveAll(); showPage('notebook');
+  toast('Elev '+elev+' inserted');
+}
+
+// ─── Toast ──────────────────────────────────────────────────────────────────
+let toastT;
+function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2000);}
+
+// ─── Init ───────────────────────────────────────────────────────────────────
+loadAll();
+</script>
+</body>
+</html>
