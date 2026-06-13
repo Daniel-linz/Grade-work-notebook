@@ -376,7 +376,7 @@ canvas#uc { display: block; width: 100%; }
       <div class="form-grid">
         <div class="form-field"><label>Inner Diameter</label><input type="number" id="m-id" value="1.2" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
         <div class="form-field"><label>Outer Diameter</label><input type="number" id="m-od" value="1.5" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
-        <div class="form-field"><label>Base Height (底座)</label><input type="number" id="m-base" value="0.3" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
+        <div class="form-field"><label>Base Height</label><input type="number" id="m-base" value="0.3" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
       </div>
       <p class="comp-label">INV (distance from bottom)</p>
       <div class="inv-grid">
@@ -420,7 +420,7 @@ canvas#uc { display: block; width: 100%; }
     <div class="slope-inputs slope-calc-grid">
       <div class="sc-field" id="scf-hi"><label>High Elev</label><div class="sc-input-wrap"><input id="sc-hi" type="number" step="any" oninput="scCalc('hi')"><button class="sc-lock" onclick="scToggle('hi')" title="Lock">🔓</button></div></div>
       <div class="sc-field" id="scf-lo"><label>Low Elev</label><div class="sc-input-wrap"><input id="sc-lo" type="number" step="any" oninput="scCalc('lo')"><button class="sc-lock" onclick="scToggle('lo')" title="Lock">🔓</button></div></div>
-      <div class="sc-field sc-rise-wrap" id="scf-rise"><label>Rise (高度差)</label><div class="sc-input-wrap"><input id="sc-rise" type="number" step="any" oninput="scCalc('rise')"><button class="sc-lock" onclick="scToggle('rise')" title="Lock">🔓</button></div></div>
+      <div class="sc-field sc-rise-wrap" id="scf-rise"><label>Rise</label><div class="sc-input-wrap"><input id="sc-rise" type="number" step="any" oninput="scCalc('rise')"><button class="sc-lock" onclick="scToggle('rise')" title="Lock">🔓</button></div></div>
       <div class="sc-field" id="scf-dist"><label>Distance</label><div class="sc-input-wrap"><input id="sc-dist" type="number" step="any" min="0" oninput="scCalc('dist')"><button class="sc-lock" onclick="scToggle('dist')" title="Lock">🔓</button></div></div>
       <div class="sc-field" id="scf-pct"><label>Slope %</label><div class="sc-input-wrap"><input id="sc-pct" type="number" step="any" oninput="scCalc('pct')"><button class="sc-lock" onclick="scToggle('pct')" title="Lock">🔓</button></div></div>
     </div>
@@ -937,7 +937,7 @@ function usInfo(){
       +`<div class="info-card"><div class="lbl">Wall Thickness</div><div class="val">${((mod-mid)/2).toFixed(2)} m</div></div>`;
     if(sp.cast>0) cards+=`<div class="info-card"><div class="lbl">Casting</div><div class="val">${sp.cast.toFixed(2)} m</div></div>`;
     if(ringsH>0) cards+=`<div class="info-card"><div class="lbl">Rings</div><div class="val">${sp.ringN}×${sp.ringH.toFixed(2)} m</div></div>`;
-    if(baseH>0) cards+=`<div class="info-card"><div class="lbl">Base (底座)</div><div class="val">${baseH.toFixed(2)} m</div></div>`;
+    if(baseH>0) cards+=`<div class="info-card"><div class="lbl">Base</div><div class="val">${baseH.toFixed(2)} m</div></div>`;
     if(tH>0) cards+=`<div class="info-card"><div class="lbl">${remLabel}</div><div class="val">${remH.toFixed(2)} m</div></div>`;
     c.innerHTML=cards;
     let ecHtml='';
@@ -1289,27 +1289,24 @@ function buildShareText(){
   const proj=config.projects.find(p=>p.id===s.projectId);
   const sup=config.supervisors.find(sv=>sv.id===s.supervisorId);
   const op=config.operators.find(o=>o.id===s.operatorId);
-  const L=['=== Grade Work Notebook ===','Sheet      : '+s.name];
-  if(proj)L.push('Project    : '+proj.name);
-  if(sup)L.push('Supervisor : '+sup.name);
-  if(op)L.push('Operator   : '+op.name);
-  L.push('Date       : '+fmtDate(s.date));
-  if(s.notes)L.push('Notes      : '+s.notes);
+  const T='\t';
+  const L=['Grade Work Notebook',''];
+  L.push('Sheet:'+T+s.name);
+  if(proj) L.push('Project:'+T+proj.name);
+  if(sup)  L.push('Super:'+T+sup.name);
+  if(op)   L.push('Oper:'+T+op.name);
+  L.push('Date:'+T+fmtDate(s.date));
+  if(s.notes) L.push('Notes:'+T+s.notes);
   L.push('');
   const dataRows=s.rows.filter(r=>r.stat||r.bs||r.rr||r.hi||r.elev);
-  if(dataRows.length){
-    dataRows.forEach((r,i)=>{
-      L.push('#'+(i+1)+' '+( r.stat||'—'));
-      const parts=[];
-      if(r.bs)   parts.push('BS:'+r.bs);
-      if(r.rr)   parts.push('RR:'+r.rr);
-      if(r.hi)   parts.push('HI:'+r.hi);
-      if(r.elev) parts.push('EL:'+r.elev);
-      L.push(parts.join(' | '));
-      if(r.locked) L.push('🔒 HI Locked');
-      L.push('');
-    });
-  } else { L.push('(No data)'); }
+  if(!dataRows.length){L.push('(No data)');return L.join('\n');}
+  const fmt=v=>v!=null&&v!==''?F(parseFloat(v)):'';
+  L.push(['#','STAT','BS','RR','HI','ELEV'].join(T));
+  dataRows.forEach((r,i)=>{
+    const cols=[i+1,r.stat||'—',fmt(r.bs),fmt(r.rr),fmt(r.hi),fmt(r.elev)];
+    if(r.locked) cols.push('🔒');
+    L.push(cols.join(T));
+  });
   return L.join('\n');
 }
 function openShare(){const txt=buildShareText();document.getElementById('share-text').value=txt;const enc=encodeURIComponent(txt);const s=cSheet()||{name:''};const proj=config.projects.find(p=>p.id===s.projectId);const subj=encodeURIComponent('Grade Work – '+(proj?proj.name:s.name));document.getElementById('sms-btn').href='sms:?body='+enc;document.getElementById('email-btn').href='mailto:?subject='+subj+'&body='+enc;document.getElementById('share-overlay').classList.add('show');}
