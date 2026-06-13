@@ -250,6 +250,13 @@ canvas#uc { display: block; width: 100%; }
 
 /* Slope Table */
 .slope-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px 16px; }
+.slope-calc-grid { grid-template-columns: 1fr 1fr; }
+.sc-rise-wrap { grid-column: 1 / -1; }
+.sc-input-wrap { display:flex; gap:0; }
+.sc-input-wrap input { flex:1; min-width:0; border-radius:var(--radius) 0 0 var(--radius); }
+.sc-lock { border:0.5px solid var(--border-mid); border-left:none; border-radius:0 var(--radius) var(--radius) 0; background:var(--bg-secondary); padding:0 8px; font-size:14px; cursor:pointer; color:var(--text-tertiary); }
+.sc-field.locked .sc-lock { background:#fff3cd; color:#856404; }
+.sc-field.locked input { background:#fff3cd; border-color:#f0d060; font-weight:600; }
 .slope-inputs label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 4px; }
 .slope-inputs input { width: 100%; box-sizing: border-box; font-size: 14px; padding: 8px; border: 0.5px solid var(--border-mid); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-mono); }
 .slope-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -408,14 +415,20 @@ canvas#uc { display: block; width: 100%; }
 
   <!-- SLOPE TABLE -->
   <div id="page-slope" style="display:none">
-    <!-- Reverse Slope Calculator -->
-    <p class="comp-label">Reverse Slope Calculator</p>
-    <div class="slope-inputs">
-      <div><label>Elev A</label><input id="rev-a" type="number" step="any" oninput="revSlopeCalc()"></div>
-      <div><label>Elev B</label><input id="rev-b" type="number" step="any" oninput="revSlopeCalc()"></div>
-      <div><label>Distance</label><input id="rev-dist" type="number" step="any" min="0" oninput="revSlopeCalc()"></div>
+    <!-- Slope Calculator -->
+    <p class="comp-label">Slope Calculator</p>
+    <div class="slope-inputs slope-calc-grid">
+      <div class="sc-field" id="scf-hi"><label>High Elev</label><div class="sc-input-wrap"><input id="sc-hi" type="number" step="any" oninput="scCalc('hi')"><button class="sc-lock" onclick="scToggle('hi')" title="Lock">🔓</button></div></div>
+      <div class="sc-field" id="scf-lo"><label>Low Elev</label><div class="sc-input-wrap"><input id="sc-lo" type="number" step="any" oninput="scCalc('lo')"><button class="sc-lock" onclick="scToggle('lo')" title="Lock">🔓</button></div></div>
+      <div class="sc-field sc-rise-wrap" id="scf-rise"><label>Rise (高度差)</label><div class="sc-input-wrap"><input id="sc-rise" type="number" step="any" oninput="scCalc('rise')"><button class="sc-lock" onclick="scToggle('rise')" title="Lock">🔓</button></div></div>
+      <div class="sc-field" id="scf-dist"><label>Distance</label><div class="sc-input-wrap"><input id="sc-dist" type="number" step="any" min="0" oninput="scCalc('dist')"><button class="sc-lock" onclick="scToggle('dist')" title="Lock">🔓</button></div></div>
+      <div class="sc-field" id="scf-pct"><label>Slope %</label><div class="sc-input-wrap"><input id="sc-pct" type="number" step="any" oninput="scCalc('pct')"><button class="sc-lock" onclick="scToggle('pct')" title="Lock">🔓</button></div></div>
     </div>
-    <div id="rev-result" class="rev-result"></div>
+    <div style="display:flex;gap:6px;margin:6px 0">
+      <button class="btn small-btn" onclick="scClear()" style="font-size:12px;padding:4px 10px">Clear</button>
+      <button class="btn small-btn primary" onclick="scUse()" style="font-size:12px;padding:4px 10px">Use in Slope Table ↓</button>
+    </div>
+    <div id="sc-result" class="rev-result"></div>
 
     <!-- Slope Table -->
     <p class="comp-label" style="margin-top:12px">Slope Table</p>
@@ -616,20 +629,54 @@ function showPage(p) {
 // ─── History ────────────────────────────────────────────────────────────────
 function renderHistory() {
   const el = document.getElementById('hist-content');
-  if(!historyLog.length){ el.innerHTML='<p class="hist-empty">No saved history yet.<br>Click Save to record a snapshot.</p>'; return; }
-  const sorted = [...historyLog].sort((a,b)=>b.savedAt-a.savedAt);
-  const groups = {};
-  sorted.forEach(h => { const k=dKey(h.savedAt); if(!groups[k])groups[k]=[]; groups[k].push(h); });
   let html = '';
-  Object.keys(groups).forEach(k => {
-    html += `<div class="hist-group"><div class="hist-date-header">${dLabel(groups[k][0].savedAt)}</div>`;
-    groups[k].forEach((h,i) => {
-      const s=h.sheet; const proj=config.projects.find(p=>p.id===s.projectId); const rc=(s.rows||[]).filter(r=>r.stat||r.bs||r.rr).length;
-      html += `<div class="hist-item"><div style="flex:1"><div class="hi-name">${esc(s.name||'Sheet')}</div><div class="hi-meta">${fmtDT(h.savedAt)}</div></div>${proj?`<span class="hi-proj">${esc(proj.name)}</span>`:''}<span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">${rc}r</span><button class="hist-open" onclick="openFromHistory('${k}',${i})">Open →</button><button class="small-btn del" onclick="delHistory('${k}',${i})" style="margin-left:4px">✕</button></div>`;
+  if(!historyLog.length){ html='<p class="hist-empty">No saved history yet.<br>Click Snapshot to record.</p>'; }
+  else {
+    const sorted = [...historyLog].sort((a,b)=>b.savedAt-a.savedAt);
+    const groups = {};
+    sorted.forEach(h => { const k=dKey(h.savedAt); if(!groups[k])groups[k]=[]; groups[k].push(h); });
+    Object.keys(groups).forEach(k => {
+      html += `<div class="hist-group"><div class="hist-date-header">${dLabel(groups[k][0].savedAt)}</div>`;
+      groups[k].forEach((h,i) => {
+        const s=h.sheet; const proj=config.projects.find(p=>p.id===s.projectId); const rc=(s.rows||[]).filter(r=>r.stat||r.bs||r.rr).length;
+        html += `<div class="hist-item"><div style="flex:1"><div class="hi-name">${esc(s.name||'Sheet')}</div><div class="hi-meta">${fmtDT(h.savedAt)}</div></div>${proj?`<span class="hi-proj">${esc(proj.name)}</span>`:''}<span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">${rc}r</span><button class="hist-open" onclick="openFromHistory('${k}',${i})">Open →</button><button class="small-btn del" onclick="delHistory('${k}',${i})" style="margin-left:4px">✕</button></div>`;
+      });
+      html += '</div>';
     });
-    html += '</div>';
-  });
+  }
+  html += renderBackups();
   el.innerHTML = html;
+}
+function renderBackups(){
+  let bk;
+  try{ bk=JSON.parse(localStorage.getItem('gnb-backups')||'[]'); }catch(e){ return ''; }
+  if(!bk.length) return '';
+  let html='<div class="hist-group" style="margin-top:20px"><div class="hist-date-header">Auto Backups</div>';
+  bk.slice().reverse().forEach((raw,i)=>{
+    let d;try{d=JSON.parse(raw);}catch(e){return;}
+    const ts=d.ts||0, sc=(d.sheets||[]).length;
+    html+=`<div class="hist-item"><div style="flex:1"><div class="hi-name">Backup</div><div class="hi-meta">${fmtDT(ts)}</div></div><span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">${sc} sheet${sc!==1?'s':''}</span><button class="hist-open" onclick="restoreBackup(${bk.length-1-i})">Restore</button></div>`;
+  });
+  html+='</div>';
+  return html;
+}
+function restoreBackup(idx){
+  if(!confirm('Restore this backup? Current data will be replaced.')) return;
+  let bk;
+  try{ bk=JSON.parse(localStorage.getItem('gnb-backups')||'[]'); }catch(e){ toast('Failed');return; }
+  if(!bk[idx]){toast('Backup not found');return;}
+  let d;try{d=JSON.parse(bk[idx]);}catch(e){toast('Corrupt backup');return;}
+  autoBackup();
+  if(d.config) config=d.config;
+  if(d.sheets) sheets=d.sheets;
+  if(d.currentId) currentId=d.currentId;
+  if(d.nextSheetId) nextSheetId=d.nextSheetId;
+  if(d.nextRowId) nextRowId=d.nextRowId;
+  if(d.savedStructures) savedStructures=d.savedStructures;
+  saveAll();
+  renderAll(); renderSetup(); renderHistory(); renderSavedStructures();
+  showPage('notebook');
+  toast('Backup restored ✓');
 }
 function delHistory(dk, idx) {
   const sorted=[...historyLog].sort((a,b)=>b.savedAt-a.savedAt);
@@ -1270,21 +1317,69 @@ function closeShare(){document.getElementById('share-overlay').classList.remove(
 function copyShare(){const ta=document.getElementById('share-text');if(navigator.clipboard)navigator.clipboard.writeText(ta.value).then(()=>toast('Copied ✓'));else{ta.select();document.execCommand('copy');toast('Copied ✓');}}
 
 // ─── Reverse Slope Calculator ───────────────────────────────────────────────
-function revSlopeCalc(){
-  const a=parseFloat(document.getElementById('rev-a').value);
-  const b=parseFloat(document.getElementById('rev-b').value);
-  const d=parseFloat(document.getElementById('rev-dist').value);
-  const el=document.getElementById('rev-result');
-  if(isNaN(a)||isNaN(b)||isNaN(d)||d<=0){ el.className='rev-result empty'; el.textContent='Enter Elev A, Elev B, and Distance'; return; }
-  const pct=((b-a)/d)*100;
-  el.className='rev-result';
-  el.innerHTML='Slope = <strong>'+pct.toFixed(2)+'%</strong> ('+F(b-a)+' / '+F(d)+')'
-    +`<button class="rev-use" onclick="revUse(${a},${pct},${d})">Use in Slope Table ↓</button>`;
+const scL={hi:false,lo:false,rise:false,dist:false,pct:false};
+function scToggle(k){
+  scL[k]=!scL[k];
+  document.getElementById('scf-'+k).classList.toggle('locked',scL[k]);
+  document.querySelector('#scf-'+k+' .sc-lock').textContent=scL[k]?'🔒':'🔓';
 }
-function revUse(startElev,pct,dist){
-  document.getElementById('slope-elev').value=startElev;
-  document.getElementById('slope-pct').value=parseFloat(pct.toFixed(4));
-  document.getElementById('slope-dist').value=dist;
+function scCalc(src){
+  const g=id=>parseFloat(document.getElementById(id).value);
+  const sv=(id,k,v)=>{if(scL[k])return false;document.getElementById(id).value=F(v);return true;};
+  let hi=g('sc-hi'),lo=g('sc-lo'),rise=g('sc-rise'),d=g('sc-dist'),p=g('sc-pct');
+  const el=document.getElementById('sc-result');
+  let solved=[];
+  // Phase 1: sync rise ↔ hi/lo
+  if(src==='hi'||src==='lo'){
+    if(!isNaN(hi)&&!isNaN(lo)&&sv('sc-rise','rise',hi-lo)){rise=hi-lo;solved.push('Rise');}
+  }else if(src==='rise'){
+    if(!isNaN(hi)&&!isNaN(rise)&&sv('sc-lo','lo',hi-rise)){lo=hi-rise;solved.push('Low Elev');}
+    else if(!isNaN(lo)&&!isNaN(rise)&&sv('sc-hi','hi',lo+rise)){hi=lo+rise;solved.push('High Elev');}
+  }else{
+    if(isNaN(rise)&&!isNaN(hi)&&!isNaN(lo)&&sv('sc-rise','rise',hi-lo)){rise=hi-lo;solved.push('Rise');}
+  }
+  // Phase 2: rise = dist × (pct/100). Solve for unlocked non-source field.
+  const eff=(src==='hi'||src==='lo')?'rise':src;
+  const others=['rise','dist','pct'].filter(k=>k!==eff);
+  const filled=k=>k==='dist'?(!isNaN(d)&&d>0):k==='rise'?!isNaN(rise):!isNaN(p);
+  let tgt=others.find(k=>!filled(k)&&!scL[k])||others.find(k=>!scL[k]);
+  if(tgt&&['rise','dist','pct'].filter(filled).length>=2){
+    if(tgt==='pct'&&!isNaN(rise)&&!isNaN(d)&&d>0){p=(rise/d)*100;sv('sc-pct','pct',p);solved.push('Slope %');}
+    else if(tgt==='dist'&&!isNaN(rise)&&!isNaN(p)&&p!==0){d=Math.abs(rise/(p/100));sv('sc-dist','dist',d);solved.push('Distance');}
+    else if(tgt==='rise'&&!isNaN(d)&&d>0&&!isNaN(p)){rise=d*(p/100);sv('sc-rise','rise',rise);solved.push('Rise');
+      if(!isNaN(hi)&&!isNaN(lo)){
+        if(!scL.lo){lo=hi-rise;sv('sc-lo','lo',lo);solved.push('Low Elev');}
+        else if(!scL.hi){hi=lo+rise;sv('sc-hi','hi',lo+rise);solved.push('High Elev');}
+        else{solved.push('⚠️ High/Low locked, inconsistent');}
+      }else if(!isNaN(hi)&&!scL.lo){lo=hi-rise;sv('sc-lo','lo',lo);solved.push('Low Elev');}
+      else if(!isNaN(lo)&&!scL.hi){hi=lo+rise;sv('sc-hi','hi',lo+rise);solved.push('High Elev');}
+    }
+  }
+  if(!solved.length){el.className='rev-result empty';el.textContent='Enter values — lock to protect';return;}
+  const riseF=!isNaN(rise)?F(rise):'—';
+  const distF=!isNaN(d)&&d>0?F(d):'—';
+  const pctF=!isNaN(p)?F(p)+'%':'—';
+  el.className='rev-result';
+  el.innerHTML=`<strong>${solved.join(', ')}</strong> calculated — Rise: ${riseF}, Run: ${distF}, Slope: ${pctF}`;
+}
+function scClear(){
+  ['hi','lo','rise','dist','pct'].forEach(k=>{
+    document.getElementById('sc-'+k).value='';
+    scL[k]=false;
+    document.getElementById('scf-'+k).classList.remove('locked');
+    document.querySelector('#scf-'+k+' .sc-lock').textContent='🔓';
+  });
+  document.getElementById('sc-result').className='rev-result empty';
+  document.getElementById('sc-result').textContent='Enter values — lock to protect';
+}
+function scUse(){
+  const hi=parseFloat(document.getElementById('sc-hi').value);
+  const p=parseFloat(document.getElementById('sc-pct').value);
+  const d=parseFloat(document.getElementById('sc-dist').value);
+  if(isNaN(hi)||isNaN(p)||isNaN(d)||d<=0){toast('Need High Elev, Slope %, and Distance');return;}
+  document.getElementById('slope-elev').value=hi;
+  document.getElementById('slope-pct').value=parseFloat(p.toFixed(4));
+  document.getElementById('slope-dist').value=d;
   slopeCalc();
   document.getElementById('slope-elev').scrollIntoView({behavior:'smooth'});
 }
