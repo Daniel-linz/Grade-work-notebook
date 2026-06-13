@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Grade Work Notebook</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2a6a9a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GradeBook">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a18; min-height: 100vh; }
@@ -126,7 +133,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 /* Table */
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 col.c-stat{width:18%} col.c-bs{width:17%} col.c-rr{width:16%} col.c-hi{width:18%} col.c-elev{width:27%} col.c-del{width:4%}
-table.hi-set col.c-stat{width:20%} table.hi-set col.c-bs{width:10%} table.hi-set col.c-rr{width:17%} table.hi-set col.c-hi{width:12%} table.hi-set col.c-elev{width:37%} table.hi-set col.c-del{width:4%}
+table.hi-set col.c-stat{width:22%} table.hi-set col.c-bs{width:12%} table.hi-set col.c-rr{width:20%} table.hi-set col.c-hi{width:0%} table.hi-set col.c-elev{width:42%} table.hi-set col.c-del{width:4%}
+table.hi-set th:nth-child(4), table.hi-set td:nth-child(4) { padding:0; border-left:none; border-right:none; overflow:hidden; width:0; font-size:0; }
+table.hi-set td:nth-child(4) input { display:none; }
+.hi-banner { display:flex; align-items:center; gap:10px; padding:10px 14px; margin-bottom:8px; background:var(--bg-info); border:1.5px solid var(--border-info); border-radius:var(--radius-lg); }
+.hi-banner-label { font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-info); letter-spacing:0.05em; }
+.hi-banner-value { font-family:var(--font-mono); font-size:20px; font-weight:700; color:var(--text-info); flex:1; }
+.hi-banner-unlock { background:none; border:1px solid var(--border-info); border-radius:var(--radius); color:var(--text-info); font-size:12px; padding:4px 10px; cursor:pointer; font-family:inherit; white-space:nowrap; }
 th { background: var(--bg-secondary); color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 7px 4px; border: 0.5px solid var(--border-light); text-align: center; overflow: hidden; }
 th.col-stat { text-align: left; padding-left: 6px; }
 td { border: 0.5px solid var(--border-light); padding: 0; overflow: hidden; position: relative; }
@@ -175,6 +188,19 @@ td.auto-green input { color: var(--text-success); }
 .form-field input:focus { border-color: var(--border-info); background: var(--bg-info); }
 .form-field.inv-field input { border-color: var(--border-warning); }
 .form-field .unit { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
+.elev-field input { border-color: var(--border-success); }
+.elev-calc { padding: 8px 0; margin-bottom: 6px; }
+.elev-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-radius: var(--radius); margin-bottom: 3px; }
+.elev-row .er-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
+.elev-row .er-val { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.elev-row.er-top { background: var(--bg-success); }
+.elev-row.er-top .er-label, .elev-row.er-top .er-val { color: var(--text-success); }
+.elev-row.er-bot { background: var(--bg-warning); }
+.elev-row.er-bot .er-label, .elev-row.er-bot .er-val { color: var(--text-warning); }
+.elev-row.er-inv { background: var(--bg-info); }
+.elev-row.er-inv .er-label { display: flex; align-items: center; gap: 4px; }
+.elev-row.er-barrel { background: var(--bg-secondary); }
+.comp-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin: 6px 0 4px; padding-bottom: 4px; border-bottom: 0.5px solid var(--border-light); }
 .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
 .inv-cell { position: relative; display: flex; flex-direction: column; gap: 3px; }
 .inv-cell label { font-size: 10px; color: var(--text-warning); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -187,7 +213,7 @@ td.auto-green input { color: var(--text-success); }
 .inv-dir.w { color: #d09020; }
 .canvas-wrap { background: var(--bg-secondary); border: 0.5px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 8px; }
 canvas#uc { display: block; width: 100%; }
-.info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+.info-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
 .info-card { background: var(--bg-secondary); border-radius: var(--radius); padding: 8px 10px; }
 .info-card .lbl { font-size: 10px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; }
 .info-card .val { font-family: var(--font-mono); font-size: 13px; font-weight: 500; margin-top: 2px; color: var(--text-primary); }
@@ -235,6 +261,9 @@ canvas#uc { display: block; width: 100%; }
 .slope-btns button { flex: 1; min-width: 80px; font-size: 13px; padding: 10px 8px; border-radius: var(--radius); border: 0.5px solid var(--border-mid); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-family: inherit; }
 .slope-btns button.primary { background: var(--bg-info); color: var(--text-info); border-color: var(--border-info); }
 .slope-btns button.danger { color: var(--text-danger); border-color: var(--border-danger); }
+.rev-result { padding: 10px 16px; margin: 0 16px 8px; border-radius: var(--radius); background: var(--bg-success); font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--text-success); text-align: center; min-height: 20px; }
+.rev-result.empty { background: transparent; color: var(--text-tertiary); font-size: 12px; font-weight: 400; }
+.rev-use { background: none; border: 1px solid var(--border-success); border-radius: var(--radius); color: var(--text-success); font-size: 11px; padding: 3px 8px; margin-left: 10px; cursor: pointer; font-family: inherit; }
 
 /* Save CP form */
 .save-cp-form { padding: 16px; }
@@ -279,13 +308,16 @@ canvas#uc { display: block; width: 100%; }
 </head>
 <body>
 <div class="app">
-  <p class="nb-title">Grade Work Notebook</p>
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <p class="nb-title">Grade Work Notebook</p>
+    <button id="pwa-install" class="btn primary" onclick="pwaInstall()" style="display:none;font-size:11px;padding:4px 10px">📲 Install</button>
+  </div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('notebook')">📋 Notebook</button>
     <button class="nav-tab" onclick="showPage('slope')">📐 Slope</button>
     <button class="nav-tab" onclick="showPage('utility')">🏗 Structures</button>
-    <button class="nav-tab" onclick="showPage('history')">🕒 History</button>
     <button class="nav-tab" onclick="showPage('setup')">⚙️ Setup</button>
+    <button class="nav-tab" onclick="showPage('history')">🕒 History</button>
   </div>
 
   <!-- SETUP -->
@@ -329,7 +361,7 @@ canvas#uc { display: block; width: 100%; }
       <div class="form-grid">
         <div class="form-field"><label>Length (L)</label><input type="number" id="v-l" value="2.4" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
         <div class="form-field"><label>Width (W)</label><input type="number" id="v-w" value="1.8" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
-        <div class="form-field"><label>Height (H)</label><input type="number" id="v-h" value="1.5" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
+        <div class="form-field"><label>Vault Height</label><input type="number" id="v-h" value="1.5" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
         <div class="form-field inv-field"><label>INV (from base)</label><input type="number" id="v-inv" value="0.3" step="0.001" oninput="usDraw()"><span class="unit">m from bottom</span></div>
       </div>
     </div>
@@ -337,16 +369,31 @@ canvas#uc { display: block; width: 100%; }
       <div class="form-grid">
         <div class="form-field"><label>Inner Diameter</label><input type="number" id="m-id" value="1.2" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
         <div class="form-field"><label>Outer Diameter</label><input type="number" id="m-od" value="1.5" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
-        <div class="form-field"><label>Height (H)</label><input type="number" id="m-h" value="2.0" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
+        <div class="form-field"><label>Base Height (底座)</label><input type="number" id="m-base" value="0.3" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
       </div>
+      <p class="comp-label">INV (distance from bottom)</p>
       <div class="inv-grid">
-        <div class="inv-cell"><label>INV North</label><input type="number" id="m-inv-n" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir n">N</span></div>
-        <div class="inv-cell"><label>INV South</label><input type="number" id="m-inv-s" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir s">S</span></div>
-        <div class="inv-cell"><label>INV East</label><input type="number" id="m-inv-e" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir e">E</span></div>
-        <div class="inv-cell"><label>INV West</label><input type="number" id="m-inv-w" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir w">W</span></div>
+        <div class="inv-cell"><label>INV N</label><input type="number" id="m-inv-n" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir n">N</span></div>
+        <div class="inv-cell"><label>INV S</label><input type="number" id="m-inv-s" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir s">S</span></div>
+        <div class="inv-cell"><label>INV E</label><input type="number" id="m-inv-e" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir e">E</span></div>
+        <div class="inv-cell"><label>INV W</label><input type="number" id="m-inv-w" step="0.001" placeholder="—" oninput="usDraw()"><span class="inv-dir w">W</span></div>
       </div>
     </div>
-    <div class="canvas-wrap"><canvas id="uc" height="240"></canvas></div>
+    <!-- Shared: Casting + Rings -->
+    <p class="comp-label">Casting & Rings (top → bottom)</p>
+    <div class="form-grid">
+      <div class="form-field"><label>Casting Height</label><input type="number" id="s-cast" value="0.15" step="0.01" oninput="usDraw()"><span class="unit">m</span></div>
+      <div class="form-field"><label>Ring Height</label><input type="number" id="s-ring-h" value="0.1" step="0.01" oninput="usDraw()"><span class="unit">m each</span></div>
+      <div class="form-field"><label>Ring Count</label><select id="s-ring-n" onchange="usDraw()"><option value="0">0</option><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+    </div>
+    <!-- Elevation Calculator -->
+    <p class="comp-label">Elevation Calculator</p>
+    <div class="form-grid">
+      <div class="form-field elev-field"><label>Finish Grade</label><input type="number" id="s-fg" step="0.001" placeholder="Top Elev" oninput="usDraw()"><span class="unit">elev</span></div>
+      <div class="form-field elev-field" id="tor-field" style="display:none"><label>Top of Rock</label><input type="number" id="s-tor" step="0.001" placeholder="Bottom Elev" oninput="usDraw()"><span class="unit">elev</span></div>
+    </div>
+    <div id="us-elev-calc"></div>
+    <div class="canvas-wrap"><canvas id="uc" height="280"></canvas></div>
     <div class="info-row" id="us-info-cards"></div>
     <div id="us-inv-bar"></div>
     <div class="setup-section">
@@ -361,6 +408,17 @@ canvas#uc { display: block; width: 100%; }
 
   <!-- SLOPE TABLE -->
   <div id="page-slope" style="display:none">
+    <!-- Reverse Slope Calculator -->
+    <p class="comp-label">Reverse Slope Calculator</p>
+    <div class="slope-inputs">
+      <div><label>Elev A</label><input id="rev-a" type="number" step="any" oninput="revSlopeCalc()"></div>
+      <div><label>Elev B</label><input id="rev-b" type="number" step="any" oninput="revSlopeCalc()"></div>
+      <div><label>Distance</label><input id="rev-dist" type="number" step="any" min="0" oninput="revSlopeCalc()"></div>
+    </div>
+    <div id="rev-result" class="rev-result"></div>
+
+    <!-- Slope Table -->
+    <p class="comp-label" style="margin-top:12px">Slope Table</p>
     <div class="slope-inputs">
       <div><label>Start Elev</label><input id="slope-elev" type="number" step="any" oninput="slopeCalc()"></div>
       <div><label>Slope %</label><input id="slope-pct" type="number" step="any" oninput="slopeCalc()"></div>
@@ -375,6 +433,7 @@ canvas#uc { display: block; width: 100%; }
       <button class="danger" onclick="slopeReset()">Reset</button>
       <button onclick="slopeCopy()">📋 Copy</button>
       <button class="primary" onclick="slopeInsert()">↓ Insert Elev</button>
+      <button class="primary" onclick="slopeInsertAll()">📋 Insert All</button>
     </div>
   </div>
 
@@ -391,6 +450,11 @@ canvas#uc { display: block; width: 100%; }
       <div class="meta-field"><label>Operator</label><select id="field-operator" onchange="metaChanged()"></select></div>
       <div class="meta-field"><label>Date</label><input type="date" id="field-date" oninput="metaChanged()"></div>
       <div class="meta-field" style="grid-column:1/-1"><label>Notes</label><input type="text" id="field-remark" placeholder="Weather, location…" oninput="metaChanged()"></div>
+    </div>
+    <div id="hi-banner" class="hi-banner" style="display:none">
+      <span class="hi-banner-label">HI</span>
+      <span class="hi-banner-value" id="hi-banner-val">—</span>
+      <button class="hi-banner-unlock" id="hi-banner-btn" onclick="bannerUnlock()">🔓 Unlock</button>
     </div>
     <table id="main-table">
       <colgroup><col class="c-stat"><col class="c-bs"><col class="c-rr"><col class="c-hi"><col class="c-elev"><col class="c-del"></colgroup>
@@ -483,14 +547,45 @@ const store = {
   get: k => { try{ const v=localStorage.getItem(k); return v?{value:v}:null; }catch(e){return null;} },
   set: (k,v) => { try{ localStorage.setItem(k,v); }catch(e){} }
 };
-async function saveAll(hist=false) {
-  try {
-    if(hist){ const s=cSheet(); if(s){ historyLog.push({savedAt:Date.now(),sheet:JSON.parse(JSON.stringify(s))}); if(historyLog.length>200)historyLog=historyLog.slice(-200); } }
+let _dirty=false, _autoSaveTimer=null;
+function markDirty(){
+  _dirty=true;
+  if(_autoSaveTimer) clearTimeout(_autoSaveTimer);
+  _autoSaveTimer=setTimeout(()=>{ flushSave(); },800);
+}
+function flushSave(){
+  if(_autoSaveTimer){clearTimeout(_autoSaveTimer);_autoSaveTimer=null;}
+  if(!_dirty) return;
+  try{
     store.set('gnb-cfg', JSON.stringify(config));
     store.set('gnb-sh',  JSON.stringify({sheets,currentId,nextSheetId,nextRowId}));
     store.set('gnb-hi',  JSON.stringify(historyLog));
     store.set('gnb-us',  JSON.stringify(savedStructures));
-    toast('Saved ✓');
+    _dirty=false;
+  }catch(e){}
+}
+function autoBackup(){
+  try{
+    const data=JSON.stringify({config,sheets,currentId,nextSheetId,nextRowId,savedStructures,ts:Date.now()});
+    const backups=JSON.parse(localStorage.getItem('gnb-backups')||'[]');
+    backups.push(data);
+    while(backups.length>5) backups.shift();
+    localStorage.setItem('gnb-backups',JSON.stringify(backups));
+  }catch(e){}
+}
+setInterval(autoBackup, 5*60*1000);
+window.addEventListener('beforeunload',e=>{
+  flushSave();
+  autoBackup();
+});
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){ flushSave(); autoBackup(); }
+});
+async function saveAll(hist=false) {
+  try {
+    if(hist){ const s=cSheet(); if(s){ historyLog.push({savedAt:Date.now(),sheet:JSON.parse(JSON.stringify(s))}); if(historyLog.length>200)historyLog=historyLog.slice(-200); } }
+    _dirty=true; flushSave();
+    if(hist) toast('Snapshot saved ✓');
   } catch(e){ toast('Save failed'); }
 }
 function loadDefaults() {}
@@ -509,7 +604,7 @@ function loadAll() {
 }
 
 // ─── Pages ──────────────────────────────────────────────────────────────────
-const PAGES = ['notebook','slope','utility','history','setup'];
+const PAGES = ['notebook','slope','utility','setup','history'];
 function showPage(p) {
   PAGES.forEach(pg => document.getElementById('page-'+pg).style.display = pg===p ? '' : 'none');
   document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', PAGES[i]===p));
@@ -530,11 +625,17 @@ function renderHistory() {
     html += `<div class="hist-group"><div class="hist-date-header">${dLabel(groups[k][0].savedAt)}</div>`;
     groups[k].forEach((h,i) => {
       const s=h.sheet; const proj=config.projects.find(p=>p.id===s.projectId); const rc=(s.rows||[]).filter(r=>r.stat||r.bs||r.rr).length;
-      html += `<div class="hist-item"><div style="flex:1"><div class="hi-name">${esc(s.name||'Sheet')}</div><div class="hi-meta">${fmtDT(h.savedAt)}</div></div>${proj?`<span class="hi-proj">${esc(proj.name)}</span>`:''}<span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">${rc}r</span><button class="hist-open" onclick="openFromHistory('${k}',${i})">Open →</button></div>`;
+      html += `<div class="hist-item"><div style="flex:1"><div class="hi-name">${esc(s.name||'Sheet')}</div><div class="hi-meta">${fmtDT(h.savedAt)}</div></div>${proj?`<span class="hi-proj">${esc(proj.name)}</span>`:''}<span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">${rc}r</span><button class="hist-open" onclick="openFromHistory('${k}',${i})">Open →</button><button class="small-btn del" onclick="delHistory('${k}',${i})" style="margin-left:4px">✕</button></div>`;
     });
     html += '</div>';
   });
   el.innerHTML = html;
+}
+function delHistory(dk, idx) {
+  const sorted=[...historyLog].sort((a,b)=>b.savedAt-a.savedAt);
+  const groups={}; sorted.forEach(h=>{const k=dKey(h.savedAt);if(!groups[k])groups[k]=[];groups[k].push(h);});
+  const h=groups[dk][idx]; if(!h) return;
+  historyLog=historyLog.filter(x=>x!==h); saveAll(); renderHistory(); toast('Deleted');
 }
 function openFromHistory(dk, idx) {
   const sorted=[...historyLog].sort((a,b)=>b.savedAt-a.savedAt);
@@ -598,19 +699,219 @@ function autoOne(sel) { const opts=[...sel.options].filter(o=>o.value); if(opts.
 const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
 const uc=document.getElementById('uc'), uctx=uc.getContext('2d');
 const UC={face:isDark?'#2a3a4a':'#cde3f5',top:isDark?'#3a5060':'#a8d0ee',side:isDark?'#1e2e3a':'#7fb8df',stroke:isDark?'#5a8aaa':'#3a7aaa',label:isDark?'#c0d8e8':'#1a4a7a',inv:isDark?'#f5c060':'#c07010',invL:isDark?'#f5a020':'#e07800',wall:isDark?'#4a3a2a':'#d4c0a0',wallD:isDark?'#3a2a1a':'#b09060',wallS:isDark?'#2a1a0a':'#907040',bg:isDark?'#1e1e1c':'#f0eeea',dim:isDark?'#6a9aaa':'#2a6a9a'};
-function setUsType(t){usType=t;document.getElementById('us-form-vault').style.display=t==='vault'?'':'none';document.getElementById('us-form-manhole').style.display=t==='manhole'?'':'none';document.getElementById('btn-vault').classList.toggle('active',t==='vault');document.getElementById('btn-manhole').classList.toggle('active',t==='manhole');usDraw();}
+function setUsType(t){usType=t;document.getElementById('us-form-vault').style.display=t==='vault'?'':'none';document.getElementById('us-form-manhole').style.display=t==='manhole'?'':'none';document.getElementById('btn-vault').classList.toggle('active',t==='vault');document.getElementById('btn-manhole').classList.toggle('active',t==='manhole');document.getElementById('tor-field').style.display=t==='manhole'?'':'none';usDraw();}
 function un(id){return parseFloat(document.getElementById(id).value)||0;}
-function usDraw(){const W=uc.offsetWidth||340;uc.width=W;uc.height=240;uctx.clearRect(0,0,W,240);usType==='vault'?drawVault(W):drawManhole(W);usInfo();}
+function usDraw(){const W=uc.offsetWidth||340;uc.width=W;uc.height=280;uctx.clearRect(0,0,W,280);usType==='vault'?drawVault(W):drawManhole(W);usInfo();}
 function iso(x,y,z,ox,oy,s){return{px:ox+(x-z)*s*0.866,py:oy-y*s+(x+z)*s*0.5};}
 function iF(pts,fill,stroke){uctx.beginPath();uctx.moveTo(pts[0].px,pts[0].py);pts.slice(1).forEach(p=>uctx.lineTo(p.px,p.py));uctx.closePath();uctx.fillStyle=fill;uctx.fill();uctx.strokeStyle=stroke;uctx.lineWidth=1;uctx.stroke();}
-function drawVault(W){const L=Math.max(un('v-l'),0.1),Wd=Math.max(un('v-w'),0.1),H=Math.max(un('v-h'),0.1),inv=un('v-inv');const s=Math.min(55,190/Math.max(L,Wd,H));const ox=W/2,oy=200-H*s*0.4;const p=(x,y,z)=>iso(x,y,z,ox,oy,s);iF([p(0,0,0),p(L,0,0),p(L,H,0),p(0,H,0)],UC.face,UC.stroke);iF([p(L,0,0),p(L,0,Wd),p(L,H,Wd),p(L,H,0)],UC.side,UC.stroke);iF([p(0,H,0),p(L,H,0),p(L,H,Wd),p(0,H,Wd)],UC.top,UC.stroke);if(inv>0&&inv<=H){const fl=p(0,inv,0),fr=p(L,inv,0),rr=p(L,inv,Wd);uctx.beginPath();uctx.moveTo(fl.px,fl.py);uctx.lineTo(fr.px,fr.py);uctx.lineTo(rr.px,rr.py);uctx.strokeStyle=UC.invL;uctx.lineWidth=2;uctx.setLineDash([5,3]);uctx.stroke();uctx.setLineDash([]);const base=p(0,0,0);const ax=base.px-24;uctx.beginPath();uctx.moveTo(ax,base.py);uctx.lineTo(ax,fl.py);uctx.strokeStyle=UC.invL;uctx.lineWidth=1;uctx.stroke();[[ax,base.py,1],[ax,fl.py,-1]].forEach(([x,y,d])=>{uctx.beginPath();uctx.moveTo(x-4,y+d*6);uctx.lineTo(x,y);uctx.lineTo(x+4,y+d*6);uctx.strokeStyle=UC.invL;uctx.lineWidth=1.5;uctx.stroke();});uctx.fillStyle=UC.inv;uctx.font='500 11px sans-serif';uctx.textAlign='right';uctx.fillText('INV '+un('v-inv').toFixed(3)+'m',ax-4,(base.py+fl.py)/2+4);}uctx.fillStyle=UC.label;uctx.font='11px monospace';const bl=p(0,0,0),br=p(L,0,0),rbr=p(L,0,Wd),tl=p(0,H,0);uctx.textAlign='center';uctx.fillText('L='+L.toFixed(2)+'m',(bl.px+br.px)/2,(bl.py+br.py)/2+14);uctx.fillText('W='+Wd.toFixed(2)+'m',(br.px+rbr.px)/2+12,(br.py+rbr.py)/2+10);uctx.textAlign='right';uctx.fillText('H='+H.toFixed(2)+'m',bl.px-30,(bl.py+tl.py)/2+4);}
-function drawManhole(W){const id=Math.max(un('m-id'),0.1),od=Math.max(un('m-od'),id+0.01),H=Math.max(un('m-h'),0.1);const iv=mhInvs();const s=Math.min(70,160/Math.max(od,H));const cx=W/2,bY=220;const ro=od*s/2,ryo=ro*0.32,ri=id*s/2,ryi=ri*0.32,hP=H*s;uctx.fillStyle=UC.wall;uctx.strokeStyle=UC.stroke;uctx.lineWidth=1;uctx.fillRect(cx-ro,bY-hP,ro*2,hP);uctx.strokeRect(cx-ro,bY-hP,ro*2,hP);uctx.fillStyle=UC.bg;uctx.fillRect(cx-ri,bY-hP+2,ri*2,hP-2);uctx.fillStyle=UC.wallD;uctx.fillRect(cx-ro,bY-hP,ro-ri,hP);uctx.fillRect(cx+ri,bY-hP,ro-ri,hP);uctx.strokeRect(cx-ro,bY-hP,ro*2,hP);[[cx,bY,ro,ryo,UC.wallS],[cx,bY,ri,ryi,UC.bg],[cx,bY-hP,ro,ryo,UC.top],[cx,bY-hP,ri,ryi,UC.bg]].forEach(([ex,ey,rx,ry,fill])=>{uctx.beginPath();uctx.ellipse(ex,ey,rx,ry,0,0,Math.PI*2);uctx.fillStyle=fill;uctx.fill();uctx.strokeStyle=UC.stroke;uctx.stroke();});const invColors={N:'#e04040',S:'#3090e0',E:'#30a050',W:'#d09020'};const invDirs=[['N',iv.N,-1,0],['S',iv.S,1,0],['W',iv.W,0,-1],['E',iv.E,0,1]];let invIdx=0;invDirs.forEach(([dir,val,dy,dx])=>{if(!(val>0&&val<=H))return;const iP=bY-val*s;const col=invColors[dir];const lineX1=dx<0?cx-ri+2:dx>0?cx+ri-2:cx-ri*0.5;const lineX2=dx<0?cx-ri+2:dx>0?cx+ri-2:cx+ri*0.5;const lineLen=ri*0.6;if(dx===0){uctx.beginPath();uctx.moveTo(cx-lineLen,iP);uctx.lineTo(cx+lineLen,iP);}else if(dx<0){uctx.beginPath();uctx.moveTo(cx-ri+2,iP);uctx.lineTo(cx,iP);}else{uctx.beginPath();uctx.moveTo(cx,iP);uctx.lineTo(cx+ri-2,iP);}uctx.strokeStyle=col;uctx.lineWidth=2;uctx.setLineDash([4,3]);uctx.stroke();uctx.setLineDash([]);const side=invIdx%2===0?-1:1;const ax=side<0?cx-ro-14-invIdx*0:cx+ro+14+invIdx*0;const offset=invIdx*12;uctx.font='bold 9px sans-serif';uctx.fillStyle=col;uctx.textAlign=side<0?'right':'left';uctx.fillText(dir+' '+val.toFixed(3),side<0?cx-ro-4:cx+ro+4,iP+3+offset*0.3);invIdx++;});uctx.fillStyle=UC.label;uctx.font='11px monospace';const ax2=cx+ro+14;uctx.beginPath();uctx.moveTo(ax2,bY-hP);uctx.lineTo(ax2,bY);uctx.strokeStyle=UC.dim;uctx.lineWidth=1;uctx.stroke();uctx.textAlign='left';uctx.fillText('H='+H.toFixed(2)+'m',ax2+5,bY-hP/2+4);uctx.textAlign='center';uctx.fillText('OD='+od.toFixed(2)+'m',cx,bY-hP-ryo-8);uctx.fillStyle=isDark?'#9abccc':'#2a6a9a';uctx.fillText('ID='+id.toFixed(2)+'m',cx,bY-hP+ryi+14);}
+function drawVault(W){
+  const L=Math.max(un('v-l'),0.1),Wd=Math.max(un('v-w'),0.1),vH=Math.max(un('v-h'),0.1),inv=un('v-inv');
+  const sp=sharedParts(),castH=sp.cast,ringH=sp.ringH,ringN=sp.ringN;
+  const tH=castH+ringH*ringN+vH;
+  const s=Math.min(50,180/Math.max(L,Wd,tH));
+  const ox=W/2,oy=210-tH*s*0.35;
+  const p=(x,y,z)=>iso(x,y,z,ox,oy,s);
+  const castCol=isDark?'#5a5040':'#c8b898';const ringCol=isDark?'#4a4a50':'#b0b0b8';
+  // vault body
+  iF([p(0,0,0),p(L,0,0),p(L,vH,0),p(0,vH,0)],UC.face,UC.stroke);
+  iF([p(L,0,0),p(L,0,Wd),p(L,vH,Wd),p(L,vH,0)],UC.side,UC.stroke);
+  iF([p(0,vH,0),p(L,vH,0),p(L,vH,Wd),p(0,vH,Wd)],UC.top,UC.stroke);
+  // rings & casting as cylinders on top of vault
+  const cr=Math.min(L,Wd)*0.35;
+  const ea=cr*s*Math.sqrt(1.5),eb=cr*s*Math.SQRT1_2;
+  let y0=vH;
+  function cylV(cy0,ch,fill){
+    const bc=p(L/2,cy0,Wd/2),tc=p(L/2,cy0+ch,Wd/2);
+    uctx.beginPath();
+    uctx.ellipse(bc.px,bc.py,ea,eb,0,Math.PI,0,true);
+    uctx.lineTo(tc.px+ea,tc.py);
+    uctx.ellipse(tc.px,tc.py,ea,eb,0,0,Math.PI,false);
+    uctx.closePath();
+    uctx.fillStyle=fill;uctx.fill();uctx.strokeStyle=UC.stroke;uctx.lineWidth=1;uctx.stroke();
+    uctx.beginPath();uctx.ellipse(tc.px,tc.py,ea,eb,0,0,Math.PI*2);uctx.closePath();
+    const lf=isDark?30:20;uctx.fillStyle=fill;uctx.globalAlpha=0.85;uctx.fill();uctx.globalAlpha=1;
+    uctx.strokeStyle=UC.stroke;uctx.lineWidth=1;uctx.stroke();
+  }
+  for(let i=0;i<ringN;i++){
+    cylV(y0,ringH,i%2===0?ringCol:(isDark?'#555560':'#a0a0a8'));
+    y0+=ringH;
+  }
+  if(castH>0) cylV(y0,castH,castCol);
+  // INV line
+  if(inv>0&&inv<=vH){
+    const fl=p(0,inv,0),fr=p(L,inv,0),rr=p(L,inv,Wd);
+    uctx.beginPath();uctx.moveTo(fl.px,fl.py);uctx.lineTo(fr.px,fr.py);uctx.lineTo(rr.px,rr.py);
+    uctx.strokeStyle=UC.invL;uctx.lineWidth=2;uctx.setLineDash([5,3]);uctx.stroke();uctx.setLineDash([]);
+    const base=p(0,0,0),ax=base.px-24;
+    uctx.beginPath();uctx.moveTo(ax,base.py);uctx.lineTo(ax,fl.py);uctx.strokeStyle=UC.invL;uctx.lineWidth=1;uctx.stroke();
+    [[ax,base.py,1],[ax,fl.py,-1]].forEach(([x,y,d])=>{uctx.beginPath();uctx.moveTo(x-4,y+d*6);uctx.lineTo(x,y);uctx.lineTo(x+4,y+d*6);uctx.strokeStyle=UC.invL;uctx.lineWidth=1.5;uctx.stroke();});
+    uctx.fillStyle=UC.inv;uctx.font='500 11px sans-serif';uctx.textAlign='right';uctx.fillText('INV '+inv.toFixed(3)+'m',ax-4,(base.py+fl.py)/2+4);
+  }
+  // labels
+  uctx.fillStyle=UC.label;uctx.font='11px monospace';
+  const bl=p(0,0,0),br=p(L,0,0),rbr=p(L,0,Wd),topPt=p(0,tH,0);
+  uctx.textAlign='center';
+  uctx.fillText('L='+L.toFixed(2)+'m',(bl.px+br.px)/2,(bl.py+br.py)/2+14);
+  uctx.fillText('W='+Wd.toFixed(2)+'m',(br.px+rbr.px)/2+12,(br.py+rbr.py)/2+10);
+  uctx.textAlign='right';
+  uctx.fillText('H='+tH.toFixed(2)+'m',bl.px-30,(bl.py+topPt.py)/2+4);
+  // component labels on right side
+  uctx.font='9px sans-serif';uctx.textAlign='left';
+  const rx=p(L,0,Wd).px+8;
+  if(vH>0.05) uctx.fillText('Vault',(p(L,vH/2,Wd)).px+8,(p(L,vH/2,Wd)).py);
+  if(ringN>0){const rm=p(L/2,vH+ringH*ringN/2,Wd/2);uctx.fillText(ringN+'× Ring',rm.px+ea+6,rm.py);}
+  if(castH>0){const cm=p(L/2,vH+ringH*ringN+castH/2,Wd/2);uctx.fillText('Casting',cm.px+ea+6,cm.py);}
+}
+function drawManhole(W){
+  const mid=Math.max(un('m-id'),0.1),mod=Math.max(un('m-od'),mid+0.01);
+  const iv=mhInvs(),sp=sharedParts();
+  const castH=sp.cast,ringH=sp.ringH,ringN=sp.ringN;
+  const baseH=Math.max(un('m-base'),0.01),fg=getFG(),tor=getTOR();
+  const totalH=(!isNaN(fg)&&!isNaN(tor)&&fg>tor)?(fg-tor):0;
+  const barrelH=Math.max(totalH-castH-ringH*ringN-baseH,0.1);
+  const tH=castH+ringH*ringN+barrelH+baseH;
+  const s=Math.min(65,155/Math.max(mod,tH));
+  const cx=W/2,bY=225;
+  const ro=mod*s/2,ri=mid*s/2,ryo=ro*0.32,ryi=ri*0.32;
+  const castCol=isDark?'#5a5040':'#c8b898';
+  const ringCol=isDark?'#4a4a50':'#b0b0b8';
+  const ringCol2=isDark?'#555560':'#a0a0a8';
+
+  // draw a section: rect walls + inner hollow
+  function sect(y,h,wallFill){
+    const top=bY-y*s, bot=bY-(y+h)*s, hPx=h*s;
+    uctx.fillStyle=wallFill;uctx.fillRect(cx-ro,bot,ro*2,hPx);
+    uctx.fillStyle=UC.bg;uctx.fillRect(cx-ri,bot+1,ri*2,hPx-1);
+    uctx.strokeStyle=UC.stroke;uctx.lineWidth=0.5;
+    uctx.strokeRect(cx-ro,bot,ro*2,hPx);
+    // separator line
+    uctx.beginPath();uctx.moveTo(cx-ro,bot);uctx.lineTo(cx+ro,bot);uctx.stroke();
+  }
+
+  const baseCol=isDark?'#3a4a3a':'#a0b8a0';
+  // base (bottom)
+  let y0=0;
+  if(baseH>0.01) sect(y0,baseH,baseCol);
+  y0+=baseH;
+  // barrel
+  sect(y0,barrelH,UC.wallD);
+  y0+=barrelH;
+  // rings
+  for(let i=0;i<ringN;i++){
+    sect(y0,ringH,i%2===0?ringCol:ringCol2);
+    y0+=ringH;
+  }
+  // casting (top)
+  if(castH>0) sect(y0,castH,castCol);
+  y0+=castH;
+
+  // outer border
+  const hP=tH*s;
+  uctx.strokeStyle=UC.stroke;uctx.lineWidth=1;
+  uctx.strokeRect(cx-ro,bY-hP,ro*2,hP);
+
+  // top & bottom ellipses
+  [[cx,bY,ro,ryo,UC.wallS],[cx,bY,ri,ryi,UC.bg],[cx,bY-hP,ro,ryo,UC.top],[cx,bY-hP,ri,ryi,UC.bg]].forEach(([ex,ey,rx,ry,fill])=>{
+    uctx.beginPath();uctx.ellipse(ex,ey,rx,ry,0,0,Math.PI*2);uctx.fillStyle=fill;uctx.fill();uctx.strokeStyle=UC.stroke;uctx.stroke();
+  });
+
+  // INV lines
+  const invColors={N:'#e04040',S:'#3090e0',E:'#30a050',W:'#d09020'};
+  let invIdx=0;
+  [['N',iv.N],['S',iv.S],['E',iv.E],['W',iv.W]].forEach(([dir,val])=>{
+    if(!(val>0&&val<=(barrelH+baseH)))return;
+    const iP=bY-val*s,col=invColors[dir],lineLen=ri*0.6;
+    uctx.beginPath();uctx.moveTo(cx-lineLen,iP);uctx.lineTo(cx+lineLen,iP);
+    uctx.strokeStyle=col;uctx.lineWidth=2;uctx.setLineDash([4,3]);uctx.stroke();uctx.setLineDash([]);
+    const side=invIdx%2===0?-1:1;
+    uctx.font='bold 9px sans-serif';uctx.fillStyle=col;
+    uctx.textAlign=side<0?'right':'left';
+    uctx.fillText(dir+' '+val.toFixed(3),side<0?cx-ro-4:cx+ro+4,iP+3);
+    invIdx++;
+  });
+
+  // dimension labels
+  uctx.fillStyle=UC.label;uctx.font='11px monospace';
+  const ax2=cx+ro+14;
+  uctx.beginPath();uctx.moveTo(ax2,bY-hP);uctx.lineTo(ax2,bY);uctx.strokeStyle=UC.dim;uctx.lineWidth=1;uctx.stroke();
+  uctx.textAlign='left';uctx.fillText('H='+tH.toFixed(2)+'m',ax2+5,bY-hP/2+4);
+  uctx.textAlign='center';
+  uctx.fillText('OD='+mod.toFixed(2)+'m',cx,bY-hP-ryo-8);
+  uctx.fillStyle=isDark?'#9abccc':'#2a6a9a';
+  uctx.fillText('ID='+mid.toFixed(2)+'m',cx,bY-hP+ryi+14);
+
+  // component labels on left
+  uctx.font='9px sans-serif';uctx.fillStyle=UC.label;uctx.textAlign='right';
+  const lx=cx-ro-5;
+  if(baseH>0.03) uctx.fillText('Base',lx,bY-baseH*s/2+3);
+  if(barrelH>0.05) uctx.fillText('Barrel',lx,bY-(baseH+barrelH/2)*s+3);
+  if(ringN>0) uctx.fillText(ringN+'× Ring',lx,bY-(baseH+barrelH+ringH*ringN/2)*s+3);
+  if(castH>0) uctx.fillText('Casting',lx,bY-(baseH+barrelH+ringH*ringN+castH/2)*s+3);
+}
 function mhInvs(){return{N:un('m-inv-n'),S:un('m-inv-s'),E:un('m-inv-e'),W:un('m-inv-w')};}
-function usInfo(){const c=document.getElementById('us-info-cards'),ib=document.getElementById('us-inv-bar');if(usType==='vault'){const L=un('v-l'),W=un('v-w'),H=un('v-h'),inv=un('v-inv');ib.innerHTML=`<div class="inv-bar"><span class="lbl">INV from base</span><span class="val">${inv.toFixed(3)} m</span></div>`;c.innerHTML=`<div class="info-card"><div class="lbl">Volume</div><div class="val">${(L*W*H).toFixed(2)} m³</div></div><div class="info-card"><div class="lbl">Footprint</div><div class="val">${(L*W).toFixed(2)} m²</div></div>`;}else{const id=un('m-id'),od=un('m-od'),H=un('m-h'),iv=mhInvs();const dirs=[['N',iv.N,'n'],['S',iv.S,'s'],['E',iv.E,'e'],['W',iv.W,'w']].filter(d=>d[1]>0);ib.innerHTML=dirs.length?dirs.map(d=>`<div class="inv-bar"><span class="lbl">INV <span class="inv-dir ${d[2]}" style="position:static">${d[0]}</span></span><span class="val">${d[1].toFixed(3)} m</span></div>`).join(''):`<div class="inv-bar"><span class="lbl">INV</span><span class="val">—</span></div>`;c.innerHTML=`<div class="info-card"><div class="lbl">Wall thickness</div><div class="val">${((od-id)/2).toFixed(2)} m</div></div><div class="info-card"><div class="lbl">Wall volume</div><div class="val">${(Math.PI*(od/2*od/2-id/2*id/2)*H).toFixed(2)} m³</div></div>`;}}
-function saveStructure(){const nm=document.getElementById('us-save-name').value.trim();if(!nm){toast('Enter a name');return;}let dims,tl;if(usType==='vault'){dims={L:un('v-l'),W:un('v-w'),H:un('v-h'),INV:un('v-inv')};tl='Vault';}else{const iv=mhInvs();dims={id:un('m-id'),od:un('m-od'),H:un('m-h'),invN:iv.N,invS:iv.S,invE:iv.E,invW:iv.W};tl='Manhole';}savedStructures.push({id:uid(),name:nm,type:usType,typeLabel:tl,dims});document.getElementById('us-save-name').value='';saveAll();renderSavedStructures();}
-function loadStructure(id){const s=savedStructures.find(s=>s.id===id);if(!s)return;setUsType(s.type);if(s.type==='vault'){document.getElementById('v-l').value=s.dims.L;document.getElementById('v-w').value=s.dims.W;document.getElementById('v-h').value=s.dims.H;document.getElementById('v-inv').value=s.dims.INV;}else{document.getElementById('m-id').value=s.dims.id;document.getElementById('m-od').value=s.dims.od;document.getElementById('m-h').value=s.dims.H;document.getElementById('m-inv-n').value=s.dims.invN||'';document.getElementById('m-inv-s').value=s.dims.invS||'';document.getElementById('m-inv-e').value=s.dims.invE||'';document.getElementById('m-inv-w').value=s.dims.invW||'';}usDraw();}
+function sharedParts(){return{cast:un('s-cast'),ringH:un('s-ring-h'),ringN:parseInt(document.getElementById('s-ring-n').value)||0};}
+function getFG(){return parseFloat(document.getElementById('s-fg').value);}
+function getTOR(){return parseFloat(document.getElementById('s-tor').value);}
+function usInfo(){
+  const c=document.getElementById('us-info-cards'),ib=document.getElementById('us-inv-bar'),ec=document.getElementById('us-elev-calc');
+  const sp=sharedParts(), fg=getFG(), ringsH=sp.ringH*sp.ringN;
+
+  if(usType==='vault'){
+    const L=un('v-l'),W=un('v-w'),vH=un('v-h'),inv=un('v-inv');
+    const tH=vH+sp.cast+ringsH;
+    ib.innerHTML=`<div class="inv-bar"><span class="lbl">INV from base</span><span class="val">${inv.toFixed(3)} m</span></div>`;
+    c.innerHTML=`<div class="info-card"><div class="lbl">Total Height</div><div class="val">${tH.toFixed(2)} m</div></div>`
+      +`<div class="info-card"><div class="lbl">Vault Body</div><div class="val">${vH.toFixed(2)} m</div></div>`
+      +`<div class="info-card"><div class="lbl">Casting + Rings</div><div class="val">${sp.cast.toFixed(2)} + ${sp.ringN}×${sp.ringH.toFixed(2)}</div></div>`;
+    // Elevation calc
+    if(!isNaN(fg)){
+      const tor=fg-tH, invElev=tor+inv;
+      ec.innerHTML=`<div class="elev-calc">`
+        +`<div class="elev-row er-top"><span class="er-label">Finish Grade</span><span class="er-val">${fg.toFixed(3)}</span></div>`
+        +`<div class="elev-row er-bot"><span class="er-label">Top of Rock</span><span class="er-val">${tor.toFixed(3)}</span></div>`
+        +`<div class="elev-row er-inv"><span class="er-label">INV Elev</span><span class="er-val">${invElev.toFixed(3)}</span></div>`
+        +`</div>`;
+    } else { ec.innerHTML=''; }
+  } else {
+    const mid=un('m-id'),mod=un('m-od'),iv=mhInvs();
+    const dirs=[['N',iv.N,'n'],['S',iv.S,'s'],['E',iv.E,'e'],['W',iv.W,'w']].filter(d=>d[1]>0);
+    ib.innerHTML=dirs.length?dirs.map(d=>`<div class="inv-bar"><span class="lbl">INV <span class="inv-dir ${d[2]}" style="position:static">${d[0]}</span></span><span class="val">${d[1].toFixed(3)} m</span></div>`).join(''):`<div class="inv-bar"><span class="lbl">INV</span><span class="val">—</span></div>`;
+    const baseH=un('m-base'),tor=getTOR();
+    const tH=(!isNaN(fg)&&!isNaN(tor)&&fg>tor)?(fg-tor):0;
+    const knownH=sp.cast+ringsH+baseH;
+    const remH=Math.max(tH-knownH,0);
+    const remParts=[];
+    if(sp.cast===0) remParts.push('Casting');
+    if(ringsH===0) remParts.push('Ring');
+    if(baseH===0) remParts.push('Base');
+    remParts.push('Barrel');
+    const remLabel=remParts.join(' + ');
+    let cards=`<div class="info-card"><div class="lbl">Total Height</div><div class="val">${tH>0?tH.toFixed(2):'—'} m</div></div>`
+      +`<div class="info-card"><div class="lbl">Wall Thickness</div><div class="val">${((mod-mid)/2).toFixed(2)} m</div></div>`;
+    if(sp.cast>0) cards+=`<div class="info-card"><div class="lbl">Casting</div><div class="val">${sp.cast.toFixed(2)} m</div></div>`;
+    if(ringsH>0) cards+=`<div class="info-card"><div class="lbl">Rings</div><div class="val">${sp.ringN}×${sp.ringH.toFixed(2)} m</div></div>`;
+    if(baseH>0) cards+=`<div class="info-card"><div class="lbl">Base (底座)</div><div class="val">${baseH.toFixed(2)} m</div></div>`;
+    if(tH>0) cards+=`<div class="info-card"><div class="lbl">${remLabel}</div><div class="val">${remH.toFixed(2)} m</div></div>`;
+    c.innerHTML=cards;
+    let ecHtml='';
+    if(!isNaN(fg)&&!isNaN(tor)&&fg>tor){
+      ecHtml=`<div class="elev-calc">`
+        +`<div class="elev-row er-top"><span class="er-label">Finish Grade</span><span class="er-val">${fg.toFixed(3)}</span></div>`
+        +`<div class="elev-row er-barrel"><span class="er-label">${remLabel}</span><span class="er-val">${remH.toFixed(3)} m</span></div>`
+        +`<div class="elev-row er-bot"><span class="er-label">Top of Rock</span><span class="er-val">${tor.toFixed(3)}</span></div>`;
+      dirs.forEach(d=>{
+        const invElev=tor+d[1];
+        ecHtml+=`<div class="elev-row er-inv"><span class="er-label"><span class="inv-dir ${d[2]}" style="position:static">${d[0]}</span> INV Elev</span><span class="er-val">${invElev.toFixed(3)}</span></div>`;
+      });
+      ecHtml+=`</div>`;
+    }
+    ec.innerHTML=ecHtml;
+  }
+}
+function saveStructure(){const nm=document.getElementById('us-save-name').value.trim();if(!nm){toast('Enter a name');return;}const sp=sharedParts(),fg=getFG();let dims,tl;if(usType==='vault'){dims={L:un('v-l'),W:un('v-w'),H:un('v-h'),INV:un('v-inv'),cast:sp.cast,ringH:sp.ringH,ringN:sp.ringN,fg:isNaN(fg)?null:fg};tl='Vault';}else{const iv=mhInvs();dims={id:un('m-id'),od:un('m-od'),base:un('m-base'),invN:iv.N,invS:iv.S,invE:iv.E,invW:iv.W,cast:sp.cast,ringH:sp.ringH,ringN:sp.ringN,fg:isNaN(fg)?null:fg,tor:isNaN(getTOR())?null:getTOR()};tl='Manhole';}savedStructures.push({id:uid(),name:nm,type:usType,typeLabel:tl,dims});document.getElementById('us-save-name').value='';saveAll();renderSavedStructures();}
+function loadStructure(id){const s=savedStructures.find(s=>s.id===id);if(!s)return;setUsType(s.type);document.getElementById('s-cast').value=s.dims.cast||0;document.getElementById('s-ring-h').value=s.dims.ringH||0;document.getElementById('s-ring-n').value=s.dims.ringN||0;document.getElementById('s-fg').value=s.dims.fg||'';if(s.type==='vault'){document.getElementById('v-l').value=s.dims.L;document.getElementById('v-w').value=s.dims.W;document.getElementById('v-h').value=s.dims.H;document.getElementById('v-inv').value=s.dims.INV;}else{document.getElementById('m-id').value=s.dims.id;document.getElementById('m-od').value=s.dims.od;document.getElementById('m-base').value=s.dims.base||'';document.getElementById('s-tor').value=s.dims.tor||'';document.getElementById('m-inv-n').value=s.dims.invN||'';document.getElementById('m-inv-s').value=s.dims.invS||'';document.getElementById('m-inv-e').value=s.dims.invE||'';document.getElementById('m-inv-w').value=s.dims.invW||'';}usDraw();}
 function delStructure(id){savedStructures=savedStructures.filter(s=>s.id!==id);saveAll();renderSavedStructures();}
-function renderSavedStructures(){const el=document.getElementById('us-saved-list');if(!el)return;if(!savedStructures.length){el.innerHTML='<p class="empty-hint">No saved structures yet.</p>';return;}el.innerHTML=savedStructures.map(s=>{let d;if(s.type==='vault'){d=`${s.dims.L.toFixed(2)}×${s.dims.W.toFixed(2)}×${s.dims.H.toFixed(2)}m`;}else{const invs=[['N',s.dims.invN],['S',s.dims.invS],['E',s.dims.invE],['W',s.dims.invW]].filter(x=>x[1]>0).map(x=>x[0]+':'+x[1].toFixed(3)).join(' ');d=`OD${s.dims.od.toFixed(2)}×H${s.dims.H.toFixed(2)}m`+(invs?' '+invs:'');}return`<div class="us-item" onclick="loadStructure('${s.id}')"><span class="us-name">${esc(s.name)}</span><span class="us-type">${esc(s.typeLabel)}</span><span class="us-dims">${d}</span><button class="small-btn del" onclick="event.stopPropagation();delStructure('${s.id}')">✕</button></div>`;}).join('');}
+function renderSavedStructures(){const el=document.getElementById('us-saved-list');if(!el)return;if(!savedStructures.length){el.innerHTML='<p class="empty-hint">No saved structures yet.</p>';return;}el.innerHTML=savedStructures.map(s=>{let d;if(s.type==='vault'){const tH=(s.dims.H||0)+(s.dims.cast||0)+(s.dims.ringH||0)*(s.dims.ringN||0);d=`${s.dims.L.toFixed(2)}×${s.dims.W.toFixed(2)} H${tH.toFixed(2)}m`;}else{const fg=s.dims.fg,tor=s.dims.tor;d=`OD${s.dims.od.toFixed(2)}`+(fg&&tor?` H${(fg-tor).toFixed(2)}m`:'');}return`<div class="us-item" onclick="loadStructure('${s.id}')"><span class="us-name">${esc(s.name)}</span><span class="us-type">${esc(s.typeLabel)}</span><span class="us-dims">${d}</span><button class="small-btn del" onclick="event.stopPropagation();delStructure('${s.id}')">✕</button></div>`;}).join('');}
 new ResizeObserver(()=>{if(document.getElementById('page-utility').style.display!=='none')usDraw();}).observe(uc);
 
 // ─── Notebook ───────────────────────────────────────────────────────────────
@@ -628,9 +929,9 @@ function newSheet(save=true) {
 function mkRow(stat=''){return{id:nextRowId++,stat,bs:'',rr:'',hi:'',elev:'',locked:false,lastEdited:''};}
 function switchSheet(id){currentId=id;pendingHIRowId=null;pendingUnlockRowId=null;hideConfirm();renderAll();}
 function deleteSheet(){if(sheets.length===1){toast('Cannot delete the only sheet');return;}if(!confirm('Delete?'))return;sheets=sheets.filter(s=>s.id!==currentId);currentId=sheets[sheets.length-1].id;saveAll();renderAll();}
-function metaChanged(){const s=cSheet();if(!s)return;s.date=document.getElementById('field-date').value;s.notes=document.getElementById('field-remark').value;s.projectId=document.getElementById('field-project').value;s.supervisorId=document.getElementById('field-supervisor').value;s.operatorId=document.getElementById('field-operator').value;}
-function addRow(){const s=cSheet();if(!s)return;s.rows.push(mkRow());recompute();}
-function removeRow(id){const s=cSheet();if(!s)return;s.rows=s.rows.filter(r=>r.id!==id);if(pendingHIRowId===id){pendingHIRowId=null;hideConfirm();}recompute();}
+function metaChanged(){const s=cSheet();if(!s)return;s.date=document.getElementById('field-date').value;s.notes=document.getElementById('field-remark').value;s.projectId=document.getElementById('field-project').value;s.supervisorId=document.getElementById('field-supervisor').value;s.operatorId=document.getElementById('field-operator').value;markDirty();}
+function addRow(){const s=cSheet();if(!s)return;s.rows.push(mkRow());recompute();markDirty();}
+function removeRow(id){const s=cSheet();if(!s)return;s.rows=s.rows.filter(r=>r.id!==id);if(pendingHIRowId===id){pendingHIRowId=null;hideConfirm();}recompute();markDirty();}
 
 function onInput(id, field, value) {
   const s=cSheet(); if(!s)return;
@@ -640,6 +941,7 @@ function onInput(id, field, value) {
   if(field==='rr')   row.lastEdited='rr';
   if(field==='elev') row.lastEdited='elev';
   recompute();
+  markDirty();
 }
 
 // ─── CP Picker ──────────────────────────────────────────────────────────────
@@ -774,6 +1076,14 @@ function confirmHI(yes){
   if(row&&yes) row.locked=true;
   recompute();
 }
+function bannerUnlock(){
+  const s=cSheet(); if(!s)return;
+  const row=s.rows.find(r=>r.locked);
+  if(!row)return;
+  pendingUnlockRowId=row.id; pendingHIRowId=null;
+  showConfirmMsg('Unlock HI = <strong>'+esc(row.hi)+'</strong>? Data will be preserved.',
+    [{cls:'unlock',text:'Unlock',fn:()=>doUnlock()},{cls:'',text:'Cancel',fn:()=>hideConfirm()}]);
+}
 function doUnlock(){
   const rowId = pendingUnlockRowId;
   hideConfirm();
@@ -781,7 +1091,7 @@ function doUnlock(){
   const s=cSheet(); if(!s)return;
   const row=s.rows.find(r=>r.id===rowId);
   if(row){ row.locked=false; }
-  recompute(); toast('HI unlocked');
+  recompute(); markDirty(); toast('HI unlocked');
 }
 
 // ─── RECOMPUTE ──────────────────────────────────────────────────────────────
@@ -817,7 +1127,16 @@ function recompute() {
     }
   }
 
-  document.getElementById('main-table').className = rows.some(r=>r.locked) ? 'hi-set' : '';
+  const hasLocked = rows.some(r=>r.locked);
+  document.getElementById('main-table').className = hasLocked ? 'hi-set' : '';
+  const hiBanner = document.getElementById('hi-banner');
+  if(hasLocked){
+    const lockedRow = rows.find(r=>r.locked);
+    hiBanner.style.display='';
+    document.getElementById('hi-banner-val').textContent = lockedRow.hi || '—';
+  } else {
+    hiBanner.style.display='none';
+  }
   renderTable();
 }
 
@@ -830,7 +1149,7 @@ function renderToolbar(){
   html+=`<span class="toolbar-sep"></span>`;
   html+=`<button class="btn primary" onclick="newSheet()">+ New</button>`;
   html+=`<button class="btn" onclick="renameSheet()">Rename</button>`;
-  html+=`<button class="btn" onclick="saveAll(true)">Save</button>`;
+  html+=`<button class="btn" onclick="saveAll(true)">📸 Snapshot</button>`;
   html+=`<button class="btn" onclick="openShare()">📤 Share</button>`;
   html+=`<button class="btn" onclick="window.print()">Print</button>`;
   html+=`<button class="btn danger" onclick="deleteSheet()">Delete</button>`;
@@ -929,14 +1248,46 @@ function buildShareText(){
   if(op)L.push('Operator   : '+op.name);
   L.push('Date       : '+fmtDate(s.date));
   if(s.notes)L.push('Notes      : '+s.notes);
-  L.push('','STAT         BS       RR       HI     ELEV','────────────────────────────────────────────');
-  s.rows.forEach(r=>{const c=(str,w)=>(str||'—').padStart(w);L.push((r.stat||'—').padEnd(12)+c(r.bs,7)+'  '+c(r.rr,7)+'  '+c(r.hi,7)+'  '+c(r.elev,7));});
-  L.push('────────────────────────────────────────────');
+  L.push('');
+  const dataRows=s.rows.filter(r=>r.stat||r.bs||r.rr||r.hi||r.elev);
+  if(dataRows.length){
+    dataRows.forEach((r,i)=>{
+      L.push('#'+(i+1)+' '+( r.stat||'—'));
+      const parts=[];
+      if(r.bs)   parts.push('BS:'+r.bs);
+      if(r.rr)   parts.push('RR:'+r.rr);
+      if(r.hi)   parts.push('HI:'+r.hi);
+      if(r.elev) parts.push('EL:'+r.elev);
+      L.push(parts.join(' | '));
+      if(r.locked) L.push('🔒 HI Locked');
+      L.push('');
+    });
+  } else { L.push('(No data)'); }
   return L.join('\n');
 }
 function openShare(){const txt=buildShareText();document.getElementById('share-text').value=txt;const enc=encodeURIComponent(txt);const s=cSheet()||{name:''};const proj=config.projects.find(p=>p.id===s.projectId);const subj=encodeURIComponent('Grade Work – '+(proj?proj.name:s.name));document.getElementById('sms-btn').href='sms:?body='+enc;document.getElementById('email-btn').href='mailto:?subject='+subj+'&body='+enc;document.getElementById('share-overlay').classList.add('show');}
 function closeShare(){document.getElementById('share-overlay').classList.remove('show');}
 function copyShare(){const ta=document.getElementById('share-text');if(navigator.clipboard)navigator.clipboard.writeText(ta.value).then(()=>toast('Copied ✓'));else{ta.select();document.execCommand('copy');toast('Copied ✓');}}
+
+// ─── Reverse Slope Calculator ───────────────────────────────────────────────
+function revSlopeCalc(){
+  const a=parseFloat(document.getElementById('rev-a').value);
+  const b=parseFloat(document.getElementById('rev-b').value);
+  const d=parseFloat(document.getElementById('rev-dist').value);
+  const el=document.getElementById('rev-result');
+  if(isNaN(a)||isNaN(b)||isNaN(d)||d<=0){ el.className='rev-result empty'; el.textContent='Enter Elev A, Elev B, and Distance'; return; }
+  const pct=((b-a)/d)*100;
+  el.className='rev-result';
+  el.innerHTML='Slope = <strong>'+pct.toFixed(2)+'%</strong> ('+F(b-a)+' / '+F(d)+')'
+    +`<button class="rev-use" onclick="revUse(${a},${pct},${d})">Use in Slope Table ↓</button>`;
+}
+function revUse(startElev,pct,dist){
+  document.getElementById('slope-elev').value=startElev;
+  document.getElementById('slope-pct').value=parseFloat(pct.toFixed(4));
+  document.getElementById('slope-dist').value=dist;
+  slopeCalc();
+  document.getElementById('slope-elev').scrollIntoView({behavior:'smooth'});
+}
 
 // ─── Slope Table ────────────────────────────────────────────────────────────
 let slopeSteps = 1, slopeSelIdx = null;
@@ -982,6 +1333,26 @@ function slopeInsert(){
   recompute(); renderTable(); saveAll(); showPage('notebook');
   toast('Elev '+elev+' inserted');
 }
+function slopeInsertAll(){
+  const e0=parseFloat(document.getElementById('slope-elev').value);
+  const pct=parseFloat(document.getElementById('slope-pct').value);
+  const sd=parseFloat(document.getElementById('slope-dist').value);
+  if(isNaN(e0)||isNaN(pct)||isNaN(sd)||sd<=0||slopeSteps<1){ toast('No data'); return; }
+  const s=cSheet(); if(!s) return;
+  let count=0;
+  for(let i=0;i<slopeSteps;i++){
+    const dist=F(i*sd);
+    const elev=F(e0+(i*sd)*(pct/100));
+    let row=s.rows.find(r=>!r.locked && !r.stat && r.bs==='' && r.rr==='' && r.elev==='');
+    if(!row){ row=mkRow(); s.rows.push(row); }
+    row.stat='STA '+dist;
+    row.elev=elev;
+    row.lastEdited='elev';
+    count++;
+  }
+  recompute(); renderTable(); markDirty(); showPage('notebook');
+  toast(count+' rows inserted');
+}
 
 // ─── Toast ──────────────────────────────────────────────────────────────────
 let toastT;
@@ -989,6 +1360,13 @@ function toast(m){const el=document.getElementById('toast');el.textContent=m;el.
 
 // ─── Init ───────────────────────────────────────────────────────────────────
 loadAll();
+
+// ─── PWA ────────────────────────────────────────────────────────────────────
+if('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
+let deferredInstall=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;document.getElementById('pwa-install').style.display='';});
+function pwaInstall(){if(deferredInstall){deferredInstall.prompt();deferredInstall.userChoice.then(()=>{deferredInstall=null;document.getElementById('pwa-install').style.display='none';});}}
+window.addEventListener('appinstalled',()=>{document.getElementById('pwa-install').style.display='none';toast('App installed ✓');});
 </script>
 </body>
 </html>
