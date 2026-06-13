@@ -63,6 +63,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .app { max-width: 600px; margin: 0 auto; padding: 1rem; }
 .nb-title { font-size: 18px; font-weight: 500; color: var(--text-primary); margin-bottom: 0.75rem; }
 
+.corner-btns { display:flex; gap:4px; align-items:center; }
+.corner-btn { border:none; background:transparent; font-size:18px; padding:4px 6px; cursor:pointer; border-radius:var(--radius); opacity:0.6; }
+.corner-btn:hover,.corner-btn.active { opacity:1; background:var(--bg-secondary); }
 .nav-tabs { display: flex; border-bottom: 1px solid var(--border-light); margin-bottom: 1rem; overflow-x: auto; }
 .nav-tab { font-size: 12px; padding: 7px 12px; cursor: pointer; border: none; background: transparent; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; font-family: inherit; }
 .nav-tab.active { color: var(--text-info); border-bottom-color: var(--border-info); font-weight: 500; }
@@ -317,14 +320,16 @@ canvas#uc { display: block; width: 100%; }
 <div class="app">
   <div style="display:flex;align-items:center;justify-content:space-between">
     <p class="nb-title">Grade Work Notebook</p>
-    <button id="pwa-install" class="btn primary" onclick="pwaInstall()" style="display:none;font-size:11px;padding:4px 10px">📲 Install</button>
+    <div class="corner-btns">
+      <button id="pwa-install" class="btn primary" onclick="pwaInstall()" style="display:none;font-size:11px;padding:4px 10px">📲 Install</button>
+      <button class="corner-btn" onclick="showPage('setup')" title="Setup">⚙️</button>
+      <button class="corner-btn" onclick="showPage('history')" title="History">🕒</button>
+    </div>
   </div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('notebook')">📋 Notebook</button>
     <button class="nav-tab" onclick="showPage('slope')">📐 Slope</button>
     <button class="nav-tab" onclick="showPage('utility')">🏗 Structures</button>
-    <button class="nav-tab" onclick="showPage('setup')">⚙️ Setup</button>
-    <button class="nav-tab" onclick="showPage('history')">🕒 History</button>
   </div>
 
   <!-- SETUP -->
@@ -411,7 +416,7 @@ canvas#uc { display: block; width: 100%; }
   </div>
 
   <!-- HISTORY -->
-  <div id="page-history" style="display:none"><div id="hist-content"></div></div>
+  <div id="page-history" style="display:none"><div style="display:flex;gap:8px;margin-bottom:12px"><button class="action-btn" onclick="exportData()">📥 Export All Data</button><button class="action-btn" onclick="document.getElementById('import-file').click()">📤 Import Data</button><input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"></div><div id="hist-content"></div></div>
 
   <!-- SLOPE TABLE -->
   <div id="page-slope" style="display:none">
@@ -620,7 +625,9 @@ function loadAll() {
 const PAGES = ['notebook','slope','utility','setup','history'];
 function showPage(p) {
   PAGES.forEach(pg => document.getElementById('page-'+pg).style.display = pg===p ? '' : 'none');
-  document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', PAGES[i]===p));
+  const tabPages=['notebook','slope','utility'];
+  document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', tabPages[i]===p));
+  document.querySelectorAll('.corner-btn').forEach(b => b.classList.toggle('active', b.title.toLowerCase()===p));
   if(p==='setup') renderSetup();
   if(p==='history') renderHistory();
   if(p==='utility') setTimeout(usDraw, 50);
@@ -677,6 +684,41 @@ function restoreBackup(idx){
   renderAll(); renderSetup(); renderHistory(); renderSavedStructures();
   showPage('notebook');
   toast('Backup restored ✓');
+}
+function exportData(){
+  const data={config,sheets,currentId,nextSheetId,nextRowId,savedStructures,historyLog,backups:JSON.parse(localStorage.getItem('gnb-backups')||'[]'),exportedAt:Date.now()};
+  const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='gnb-export-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(a.href);
+  toast('Exported ✓');
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    try{
+      const d=JSON.parse(reader.result);
+      if(!d.sheets||!Array.isArray(d.sheets)){toast('Invalid file');return;}
+      if(!confirm('Replace all current data with this import?'))return;
+      autoBackup();
+      if(d.config) config=d.config;
+      sheets=d.sheets;
+      if(d.currentId) currentId=d.currentId;
+      if(d.nextSheetId) nextSheetId=d.nextSheetId;
+      if(d.nextRowId) nextRowId=d.nextRowId;
+      if(d.savedStructures) savedStructures=d.savedStructures;
+      if(d.historyLog) historyLog=d.historyLog;
+      if(d.backups) localStorage.setItem('gnb-backups',JSON.stringify(d.backups));
+      saveAll();
+      renderAll();renderSetup();renderHistory();renderSavedStructures();
+      showPage('notebook');
+      toast('Imported ✓');
+    }catch(ex){toast('Import failed: invalid JSON');}
+  };
+  reader.readAsText(file);
+  e.target.value='';
 }
 function delHistory(dk, idx) {
   const sorted=[...historyLog].sort((a,b)=>b.savedAt-a.savedAt);
@@ -1309,7 +1351,37 @@ function buildShareText(){
   });
   return L.join('\n');
 }
-function openShare(){const txt=buildShareText();document.getElementById('share-text').value=txt;const enc=encodeURIComponent(txt);const s=cSheet()||{name:''};const proj=config.projects.find(p=>p.id===s.projectId);const subj=encodeURIComponent('Grade Work – '+(proj?proj.name:s.name));document.getElementById('sms-btn').href='sms:?body='+enc;document.getElementById('email-btn').href='mailto:?subject='+subj+'&body='+enc;document.getElementById('share-overlay').classList.add('show');}
+function buildEmailText(){
+  const s=cSheet();if(!s)return'';
+  const proj=config.projects.find(p=>p.id===s.projectId);
+  const sup=config.supervisors.find(sv=>sv.id===s.supervisorId);
+  const op=config.operators.find(o=>o.id===s.operatorId);
+  const L=['Grade Work Notebook',''];
+  const meta=[];
+  meta.push('Sheet: '+s.name);
+  if(proj) meta.push('Project: '+proj.name);
+  if(sup)  meta.push('Super: '+sup.name);
+  if(op)   meta.push('Oper: '+op.name);
+  meta.push('Date: '+fmtDate(s.date));
+  L.push(meta.join(' | '));
+  if(s.notes) L.push('Notes: '+s.notes);
+  L.push('');
+  const dataRows=s.rows.filter(r=>r.stat||r.bs||r.rr||r.hi||r.elev);
+  if(!dataRows.length){L.push('(No data)');return L.join('\n');}
+  const fmt=v=>v!=null&&v!==''?F(parseFloat(v)):'';
+  dataRows.forEach((r,i)=>{
+    const parts=[];
+    if(r.bs) parts.push('BS: '+fmt(r.bs));
+    if(r.rr) parts.push('RR: '+fmt(r.rr));
+    if(r.hi) parts.push('HI: '+fmt(r.hi));
+    if(r.elev) parts.push('ELEV: '+fmt(r.elev));
+    let line='#'+(i+1)+' '+(r.stat||'—')+' — '+parts.join(', ');
+    if(r.locked) line+=' 🔒';
+    L.push(line);
+  });
+  return L.join('\n');
+}
+function openShare(){const txt=buildShareText();document.getElementById('share-text').value=txt;const smsEnc=encodeURIComponent(txt);const emailEnc=encodeURIComponent(buildEmailText());const s=cSheet()||{name:''};const proj=config.projects.find(p=>p.id===s.projectId);const subj=encodeURIComponent('Grade Work – '+(proj?proj.name:s.name));document.getElementById('sms-btn').href='sms:?body='+smsEnc;document.getElementById('email-btn').href='mailto:?subject='+subj+'&body='+emailEnc;document.getElementById('share-overlay').classList.add('show');}
 function closeShare(){document.getElementById('share-overlay').classList.remove('show');}
 function copyShare(){const ta=document.getElementById('share-text');if(navigator.clipboard)navigator.clipboard.writeText(ta.value).then(()=>toast('Copied ✓'));else{ta.select();document.execCommand('copy');toast('Copied ✓');}}
 
